@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<metalib name="Log">
+    <struct name="RoleLogin" id="" desc="角色登录LOG">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vClientIp" type="string" size="16" desc="客户端所在ip"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iCoin" type="bigint" size="" desc="金币数量"/>
+        <entry name="dtCreateTime" type="datetime" size="" desc="角色创建的时间"/>
+        <entry name="iOnlineTotalTime" type="uint" size="" desc="角色总在线时长"/>
+
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+    </struct>
+    <!-- 角色登出LOG -->
+    <struct name="RoleLogout" id="" desc="角色登出LOG">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="dtLoginTime" type="datetime" size="" desc="登录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vClientIp" type="string" size="16" desc="客户端所在ip"/>
+        <entry name="dtCreateTime" type="datetime" size="" desc="角色创建的时间"/>
+        <entry name="iOnlineTime" type="uint" size="" desc="本次登录在线时间"/>
+        <entry name="iOnlineTotalTime" type="uint" size="" desc="角色总在线时长"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iCoin" type="bigint" size="" desc="金币数量"/>
+
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+    </struct>
+
+    <!-- 创建账号 -->
+    <struct name="CreateAccount" id="" desc="创建账号" dont_use_special_arg="DONT">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vClientIp" type="string" size="16" desc="客户端所在ip"/>
+
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+    </struct>
+
+    <!-- 创建角色 -->
+    <struct name="CreateRole" id="" desc="创建角色">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vClientIp" type="string" size="16" desc="客户端所在ip"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+    </struct>
+
+    <!-- 充值 -->
+    <struct name="Recharge" id="" desc="充值" dont_use_special_arg="ALL">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="vSN" type="string" size="64" desc="流水号"/>
+        <entry name="ts" type="uint" size="" desc="充值时间"/>
+        <entry name="iPayDelta" type="uint" size="" desc="充值金额"/>
+        <entry name="iNewCash" type="bigint" size="" desc="金币余量"/>
+        <entry name="vSubType" type="string" size="64" desc="子类型"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+    </struct>
+
+    <!-- 充值金币消费 -->
+    <struct name="CoinConsume" id="" desc="充值金币消费">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vClientIp" type="string" size="16" desc="客户端所在ip"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+
+        <entry name="iCost" type="bigint" size="" desc="支付消耗"/>
+        <entry name="iShopType" type="utinyint" size="1" desc="商店类型，消费类型 1为各种商店购买，2为其他消费如元宝一键扫荡等"/>
+        <entry name="iPropType" type="uint" size="" desc="商城类型 每日/周限购等"/>
+        <entry name="iPropId" type="uint" size="" desc="物品ID"/>
+        <entry name="iPropNum" type="uint" size="" desc="物品数量"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+        <entry name="iNewCash" type="bigint" size="" desc="钻石余量"/>
+        <entry name="iOperate" type="uint" size="60" desc="操作类型"/>
+    </struct>
+
+    <!--现金流日志 -->
+    <struct name="MoneyFlow" id="" desc="现金流" dont_use_special_arg="ALL">
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="20" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iValueBefore" type="bigint" size="" desc="动作前的金钱数"/>
+        <entry name="iValueAfter" type="bigint" size="" desc="动作后的金钱数"/>
+        <entry name="iValue" type="bigint" size="" desc="动作涉及的金钱数"/>
+        <entry name="iValueType" type="uint" size="" desc="金钱的类型"/>
+        <entry name="iOperate" type="uint" size="" desc="操作类型"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+    </struct>
+    <!-- 物品流向日志 -->
+    <struct name="PropFlow" id="" desc="物品流向日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iOperate" type="uint" size="60" desc="操作类型"/>
+        <entry name="iPropId" sort="4" type="string" index="1" desc="物品id"/>
+        <entry name="iCount" type="bigint" index="1" desc="个数"/>
+        <entry name="iTotalCount" type="bigint" index="1" desc="动作后的道具总个数"/>
+        <entry name="iIdentifier" type="uint" index="1" desc="标识 1是得到，2是失去"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+    </struct>
+
+    <!-- 在线人数 -->
+    <struct name="OnlineCount" id="" class="系统记录" desc="在线人数"
+            dont_use_special_arg="DONT">
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间"/>
+        <entry name="iEventId" type="string" size="60" desc="游戏事件ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iAccountCount" type="uint" size="" desc="当前在线帐号数量"/>
+
+    </struct>
+
+    <!-- 小游戏日志 小游戏通关后记录 -->
+    <struct name="MiniGame" id="" desc="小游戏日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="miniGameType" type="string" size="" desc="小游戏类型 1飞机 2塔防"/>
+        <entry name="level" sort="4" type="uint" size="" desc="关卡id"/>
+        <entry name="spendTime" type="uint" size="" desc="花费的时间，单位取秒"/>
+    </struct>
+
+
+    <!-- 新手漏斗 -->
+    <struct name="newPlayer" id="" desc="新手漏斗">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="isNew" type="uint" size="" desc="是否是该账号下的第一个角色"/>
+        <entry name="keyEvent" type="uint" size="" desc="关键事件-每个角色只记录1次"/>
+        <!--创建账号
+            小游戏第1关完成
+            小游戏第2关完成
+            创建角色
+            解锁马超
+            创建第一个队伍
+            第一次剿灭叛军
+            解锁许褚
+            许褚升至3级
+            马超升至3级
+            创建第二个队伍
+            完成章节任务2-1
+            完成章节任务3-1
+            升级爵位至新兵
+            完成第一次切磋
+            任1英雄升到12级
+            指挥部升至6级
+            完成第一次实战对抗-->
+    </struct>
+
+
+    <!-- 章节任务 -->
+    <struct name="ctask" id="" desc="章节任务">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="tasktype" type="string" size="" desc="任务类型"/>
+        <entry name="chapterId" type="uint" size="" desc="章节id"/>
+        <entry name="taskId" type="uint" size="" desc="任务id"/>
+    </struct>
+
+    <!-- 封地升级日志 -->
+    <struct name="homeBuild" id="" desc="封地升级日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="buildingId" type="string" size="" desc="建筑id"/>
+        <entry name="levelBefore" type="bigint" size="" desc="动作前的等级"/>
+        <entry name="levelAfter" type="bigint" size="" desc="动作后的等级"/>
+    </struct>
+
+
+    <!-- 城池归属变化 -->
+    <struct name="cityChange" id="" desc="城池归属变化" dont_use_special_arg="DONT">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+
+        <entry name="cityId" type="string" size="" desc="城池id"/>
+        <entry name="cityType" type="uint" size="" desc="城池类型"/>
+        <entry name="countryBefore" type="uint" size="" desc="变更前的归属国"/>
+        <entry name="countryAfter" type="uint" size="" desc="变更后的归属国"/>
+    </struct>
+
+
+    <!-- 政务 -->
+    <struct name="gtask" id="" desc="内政相关日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="maxTimes" type="uint" size="" desc="当天可以完成的最大次数，包含购买"/>
+        <entry name="times" type="uint" size="" desc="当天完成次数"/>
+    </struct>
+
+    <!-- 英雄升星 -->
+    <struct name="heroStar" id="" desc="英雄升星日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="heroId" type="string" size="" desc="升级的英雄id"/>
+        <entry name="cost" type="string" size="" desc="消耗"/>
+        <entry name="levelAfter" type="uint" size="" desc="升星完成后的星级"/>
+    </struct>
+
+    <!-- 技能升级 -->
+    <struct name="skillLevel" id="" desc="技能升级日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="heroId" type="string" size="" desc="英雄id"/>
+        <entry name="skillId" type="string" size="" desc="升级的技能id"/>
+        <entry name="cost" type="string" size="" desc="消耗"/>
+        <entry name="levelAfter" type="uint" size="" desc="升星完成后的技能等级"/>
+    </struct>
+
+
+    <!-- 宝物突破 -->
+    <struct name="equipUpgrade" id="" desc="技能升级日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="equipId" type="string" size="" desc="突破的装备"/>
+        <entry name="cost" type="string" size="" desc="消耗"/>
+        <entry name="levelBefore" type="uint" size="" desc="突破前的等级"/>
+        <entry name="levelAfter" type="uint" size="" desc="突破后的等级"/>
+    </struct>
+
+    <!-- 商店日志-->
+    <struct name="shop" id="" desc="商店日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="shop" type="string" size="" desc="商店"/>
+        <entry name="orderId" type="int" size="" desc="商品id"/>
+        <entry name="cost" type="string" size="" desc="花费的代币及数量"/>
+        <entry name="get" type="string" size="" desc="获得的道具及数量"/>
+    </struct>
+
+
+    <!-- 爵位特权解锁日志 -->
+    <struct name="officeRight" id="" desc="爵位特权解锁日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+        <entry name="officeRightId" type="string" size="" desc="爵位特权id"/>
+    </struct>
+
+
+    <!--    后面的部分为低优先级：-->
+
+    <!-- 城市战日志 -->
+    <struct name="cityFight" id="" desc="城市战日志" dont_use_special_arg="DONT">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+        <entry name="cityId" type="string" size="" desc="城市id"/>
+        <entry name="heroId" type="string" size="" desc="己方英雄"/>
+        <entry name="enemyheroId" type="string" size="" desc="敌方英雄"/>
+        <entry name="isNpc" type="uint" size="" desc="敌方是否是玩家 1敌方是npc 0敌方是玩家"/>
+        <entry name="result" type="uint" size="" desc="结果 0失败 1胜利"/>
+        <entry name="loseTroop" type="uint" size="" desc="记录玩家自身损失的兵力数量"/>
+        <entry name="credit" type="uint" size="" desc="产生的战功"/>
+    </struct>
+
+    <!-- pve日志 -->
+    <struct name="pve" id="" desc="pve日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="pveType" type="uint" size="" desc="pve类型 1异族入侵 2产业 3切磋"/>
+        <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
+        <entry name="loseTroop" type="uint" size="" desc="损失的兵力数量"/>
+    </struct>
+
+    <!-- 攻坚特训（过关斩将）日志-->
+    <struct name="climb" id="" desc="实战对抗日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="defeatNum" type="uint" size="" desc="击败的队伍数量"/>
+        <entry name="reward" type="string" size="" desc="获得的奖励"/>
+    </struct>
+
+    <!-- 实战对抗（群雄逐鹿）日志-->
+    <struct name="pk" id="" desc="实战对抗日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="rankBefore" type="uint" size="" desc="打之前的排名"/>
+        <entry name="rankAfter" type="uint" size="" desc="打完后的排名"/>
+        <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
+        <entry name="reward" type="string" size="" desc="获得的奖励"/>
+    </struct>
+
+    <!-- 特战演习（沙盘演义）日志-->
+    <struct name="pveCombat" id="" desc="沙盘演义日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="battleId" type="string" size="" desc="关卡"/>
+        <entry name="repeat" type="uint" size="" desc="0挑战 1扫荡"/>
+        <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
+        <entry name="reward" type="string" size="" desc="获得的奖励"/>
+    </struct>
+
+
+    <!-- 迷境探索（蓬莱寻宝）日志-->
+    <struct name="mining" id="" desc="迷境探索日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="result" type="uint" size="" desc="结果 0失败 大于0代表星星数"/>
+        <entry name="reward" type="string" size="" desc="获得的奖励"/>
+    </struct>
+
+    <struct name="guide" id="" desc="引导日志">
+        <entry name="iEventId" type="string" size="60" desc="操作ID"/>
+        <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
+        <entry name="iUin" type="string" size="60" desc="用户ID"/>
+        <entry name="dtEventTime" type="datetime" size="" desc="记录时间, 格式 YYYY-MM-DD HH:MM:SS"/>
+        <entry name="iRoleId" type="bigint" index="1" desc="角色ID"/>
+        <entry name="vRoleName" type="string" size="60" desc="角色名"/>
+        <entry name="iCountry" type="uint" size="" desc="国家"/>
+        <entry name="iOfficeLv" type="uint" size="" desc="爵位等级"/>
+        <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
+        <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+
+        <entry name="guideType" type="string" size="" desc="引导类型"/>
+        <entry name="guideNum" type="uint" size="" desc="引导步骤"/>
+    </struct>
+
+
+</metalib>

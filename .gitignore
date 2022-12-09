@@ -1,2 +1,4 @@
 /.idea
 /target
+inputParser.conf
+output.conf

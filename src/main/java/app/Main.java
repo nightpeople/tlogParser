@@ -1,35 +1,43 @@
 package app;
 
+import app.module.Parser;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Node;
+import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 
 public class Main {
-    public static void main(String[] args) throws DocumentException {
+    public static void main(String[] args) throws DocumentException, MalformedURLException {
         // TODO args参数, tlog路径等
-        URL resource = Main.class.getResource("/tlog.xml");
-        assert resource != null;
-        String path = resource.getPath();
-        File file = new File(path);
-        SAXReader reader = new SAXReader();
-        Document document = reader.read(resource);
+        // 取jar包同级tlog.xml文件
+        String jarPath = new File("").getAbsolutePath();
+        String tlogPath;
+        URL resource;
+        Document document;
+        SAXReader saxReader = new SAXReader();
+        if (File.separatorChar == jarPath.charAt(jarPath.length() - 1)){
+            tlogPath = jarPath + "tlog.xml";
+        } else {
+            tlogPath = jarPath + File.separatorChar + "tlog.xml";
+        }
 
-//        Element root = document.getRootElement();
-//        for (Iterator<Element> it = root.elementIterator(); it.hasNext() ;) {
-//            Element element = it.next();
-//            String tableName = element.attributeValue("name");
-//            for (Element field : element.elements()) {
-//                String fieldName = field.attributeValue("name");
-//                System.out.println(tableName + ": " + fieldName);
-//            }
-//            System.out.println("--------------------\n");
-//        }
-        Node node = document.selectSingleNode("/Log/RoleLogin");
-        String name = node.valueOf("@name");
-        System.out.println(name);
+        File tlogFile = new File(tlogPath);
+        // 找不到就取内部的tlog.xml
+        if (!tlogFile.exists()){
+            tlogPath = "/tlog.xml";
+            resource = Main.class.getResource(tlogPath);
+            document = saxReader.read(resource);
+        }else {
+            document = saxReader.read(tlogFile);
+        }
+
+        Parser parser = new Parser(document);
+        parser.parseXML();
+
     }
 }

@@ -13,8 +13,6 @@ import java.net.URL;
 
 public class Parser {
 
-    public URL url;
-
     public Document document;
 
     private final StringBuilder inputParserConf;
@@ -36,10 +34,9 @@ public class Parser {
         outputSource.append("\n");
     }
 
-    public Parser(URL url) throws DocumentException {
-        this.url = url;
-        SAXReader saxReader = new SAXReader();
-        document = saxReader.read(url);
+    public Parser(Document document) throws DocumentException {
+
+        this.document = document;
         inputParserConf = new StringBuilder(1024 * 16);
         inputParserConf.append("#filter csv parser plugin parse tlog to k:v json by specified tag\n");
         outputConf = new StringBuilder(1024 * 16);

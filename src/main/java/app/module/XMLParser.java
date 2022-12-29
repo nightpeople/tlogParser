@@ -1,17 +1,16 @@
 package app.module;
 
-import app.module.common.Field;
-import app.module.common.Table;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
+import java.util.LinkedHashMap;
 
-public class Parser {
+import app.module.common.Field;
+import app.module.common.Table;
+
+public class XMLParser {
 
     public Document document;
 
@@ -24,6 +23,12 @@ public class Parser {
     public static final String INPUT_CONF_PATH = "inputParser.conf";
     public static final String OUTPUT_CONF_PATH = "output.conf";
 
+    /**
+     * 解析的tlog table
+     * 表名 - Table结构
+     */
+    public LinkedHashMap<String, Table> tables = new LinkedHashMap<>();
+
     static {
         outputSource.append("\n");
         outputSource.append("<source>\n");
@@ -34,7 +39,7 @@ public class Parser {
         outputSource.append("\n");
     }
 
-    public Parser(Document document) throws DocumentException {
+    public XMLParser(Document document) {
 
         this.document = document;
         inputParserConf = new StringBuilder(1024 * 16);
@@ -43,7 +48,7 @@ public class Parser {
         outputConf.append("##tlog data output to mysql\n");
     }
 
-    public void parseXML(){
+    public void parse() {
         Element rootElement = document.getRootElement();
         for (Element tableElement : rootElement.elements()) {
             //表结构
@@ -57,12 +62,14 @@ public class Parser {
                 String fieldDesc = fieldElement.attributeValue("desc");
                 Field field = new Field(fieldName, rawType, fieldDesc, tableName);
                 table.addFields(field.name, field);
-                if (Field.convert2Integer.containsKey(field.type)){
+                if (Field.convert2Integer.containsKey(field.type)) {
                     table.addIntFields(field.name);
                 }
             }
             table.inputBuild(inputParserConf);
             table.outputBuild(outputConf);
+
+            tables.put(table.name, table);
         }
         outputConf.append(outputSource);
 
@@ -70,8 +77,8 @@ public class Parser {
         write2File(OUTPUT_CONF_PATH, outputConf);
     }
 
-    public void write2File(String path, StringBuilder builder){
-        try(FileWriter fileWriter = new FileWriter(path)) {
+    public void write2File(String path, StringBuilder builder) {
+        try (FileWriter fileWriter = new FileWriter(path)) {
             fileWriter.write(""); //清空原文件
             fileWriter.write(builder.toString());
             fileWriter.flush();

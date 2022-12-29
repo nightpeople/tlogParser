@@ -1,15 +1,15 @@
 package app;
 
-import app.module.Parser;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
+
+import app.module.DBLoader;
+import app.module.XMLParser;
 
 public class Main {
     public static void main(String[] args) throws DocumentException, MalformedURLException {
@@ -20,7 +20,7 @@ public class Main {
         URL resource;
         Document document;
         SAXReader saxReader = new SAXReader();
-        if (File.separatorChar == jarPath.charAt(jarPath.length() - 1)){
+        if (File.separatorChar == jarPath.charAt(jarPath.length() - 1)) {
             tlogPath = jarPath + "tlog.xml";
         } else {
             tlogPath = jarPath + File.separatorChar + "tlog.xml";
@@ -28,16 +28,17 @@ public class Main {
 
         File tlogFile = new File(tlogPath);
         // 找不到就取内部的tlog.xml
-        if (!tlogFile.exists()){
+        if (!tlogFile.exists()) {
             tlogPath = "/tlog.xml";
             resource = Main.class.getResource(tlogPath);
             document = saxReader.read(resource);
-        }else {
+        } else {
             document = saxReader.read(tlogFile);
         }
 
-        Parser parser = new Parser(document);
-        parser.parseXML();
+        XMLParser XMLParser = new XMLParser(document);
+        DBLoader dbLoader = new DBLoader();
+        XMLParser.parse();
 
     }
 }

@@ -1,6 +1,10 @@
 package app.module.common;
 
+import com.google.common.base.Strings;
+
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Field {
 
@@ -15,6 +19,20 @@ public class Field {
     public String type;
 
     public int size;
+
+    public boolean unsigned;
+
+    public boolean notNull;
+
+    public String key;
+
+    /**
+     * 字段默认值
+     * NULL是没有默认值
+     */
+    public String _default;
+
+    public boolean autoIncrement;
 
     public String desc;
 
@@ -31,6 +49,11 @@ public class Field {
     public static final HashMap<String, Integer> typeSize = new HashMap<>();
 
     public static final HashMap<String, String> convert2Integer = new HashMap<>();
+
+    /**
+     * 下个字段
+     */
+    public Field next;
 
     static {
         typeParser.put("string", "varchar");
@@ -52,6 +75,9 @@ public class Field {
         convert2Integer.put("bigint", "bigint");
     }
 
+    /**
+     * 用于tlog table实例化
+     */
     public Field(String name, String rawType, String desc, String table) {
         this.name = name;
         this.desc = desc;
@@ -59,19 +85,61 @@ public class Field {
         parseType(rawType, name, table);
     }
 
-    public void parseType(String rawType, String name, String table){
-        String type = typeParser.get(rawType);
-        if (type == null){
-            // TODO 优化抛出异常方式
-            throw new IllegalArgumentException("tlog " + table + "表 " + name + "字段 type有未识别的类型 " + rawType);
+    /**
+     * 用于mysql表实例化
+     * desc tableName;字段
+     */
+    public Field(String fieldName, String typeConf, boolean notNull, String key, String _default, String extra, String tableName) {
+        this.name = fieldName;
+        this.unsigned = typeConf.contains("unsigned");
+        String rawType = typeConf;
+        Pattern pattern = Pattern.compile("\\((.+?)\\)");
+        Matcher matcher = pattern.matcher(typeConf);
+        if (matcher.find()) {
+            this.size = Integer.parseInt(matcher.group(1));
+            //去掉size内容
+            rawType = matcher.replaceFirst("");
         }
-        this.type = type;
+        String[] split = rawType.split(" ");
+        this.type = parseType(split[0]);
+
+        this.notNull = notNull;
+        this.key = key;
+        this._default = _default;
+        this.autoIncrement = extra.contains("auto_increment");
+        this.table = tableName;
+    }
+
+    public void parseType(String rawType, String name, String table) {
+        this.type = parseType(rawType);
 
         Integer size = typeSize.get(type);
-        if (size == null){
+        if (size == null) {
             // TODO 优化抛出异常方式
             throw new IllegalArgumentException(type + "类型没有指定对应的size长度");
         }
         this.size = size;
+    }
+
+    public String parseType(String rawType) {
+        String type;
+        if (typeSize.containsKey(rawType)) {
+            type = rawType;
+        } else {
+            type = typeParser.get(rawType);
+        }
+        if (type == null) {
+            // TODO 优化抛出异常方式
+            throw new IllegalArgumentException("tlog " + table + "表 " + name + "字段 type有未识别的类型 " + rawType);
+        }
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return name + "  " + type + (size > 0 ? "(" + size + ")" : "") + " " + (unsigned ? "unsigned" : "") + "  " + (notNull ? "notNull" : "") +
+                "  " + ("PRI".equalsIgnoreCase(key) ? "primaryKey  " : "") +
+                (!Strings.isNullOrEmpty(_default) && !"NULL".equalsIgnoreCase(_default) ? "Default: " + _default + "  " : "") +
+                (autoIncrement ? "autoIncrement" : "") + "\n";
     }
 }

@@ -10,9 +10,12 @@ import java.util.LinkedHashMap;
 import app.module.common.Field;
 import app.module.common.Table;
 
+/**
+ * tlog.xml 日志解析器
+ */
 public class XMLParser {
 
-    public Document document;
+    private final Document document;
 
     private final StringBuilder inputParserConf;
 
@@ -72,7 +75,9 @@ public class XMLParser {
             tables.put(table.name, table);
         }
         outputConf.append(outputSource);
+    }
 
+    public void output2File() {
         write2File(INPUT_CONF_PATH, inputParserConf);
         write2File(OUTPUT_CONF_PATH, outputConf);
     }

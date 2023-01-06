@@ -21,6 +21,16 @@ public class Table {
 
     public static final StringBuilder outputBiggerMemoryCacheNode = new StringBuilder();
 
+    /**
+     * 表的首字段
+     */
+    private Field firstField;
+
+    /**
+     * 当前索引指向的字段
+     */
+    private Field idxField;
+
     static {
         needBiggerMemoryCacheTables.put("PropFlow", "PropFlow");
 
@@ -37,15 +47,18 @@ public class Table {
         fields = new LinkedHashMap<>();
     }
 
-    public Field addFields(String name, Field field){
+    public Field addFields(String name, Field field) {
+        if (fields.size() == 0) {
+            firstField = field;
+        }
         return fields.put(name, field);
     }
 
-    public boolean addIntFields(String field){
+    public boolean addIntFields(String field) {
         return intFields.add(field);
     }
 
-    public void inputBuild(StringBuilder builder){
+    public void inputBuild(StringBuilder builder) {
         builder.append("<filter tlog.").append(name).append(">\n");
         builder.append("  @type parser\n");
         builder.append("  key_name content\n");
@@ -67,13 +80,13 @@ public class Table {
         builder.append("\n");
     }
 
-    public void outputBuild(StringBuilder builder){
+    public void outputBuild(StringBuilder builder) {
         builder.append("<match tlog.").append(name).append(">\n");
         builder.append("  @type mysql_bulk\n");
         builder.append("  @include config.d/outputDB.conf\n");
         builder.append("  column_names ").append(String.join(",", fields.keySet())).append("\n");
         builder.append("  table ").append(name).append("\n");
-        if (needBiggerMemoryCacheTables.containsKey(name)){
+        if (needBiggerMemoryCacheTables.containsKey(name)) {
             builder.append(outputBiggerMemoryCacheNode);
         }
         builder.append("</match>\n");
@@ -81,8 +94,36 @@ public class Table {
         builder.append("\n");
     }
 
+    /**
+     * 指到下个字段
+     */
+    public Field nextField() {
+        return idxField = idxField.next;
+    }
+
+    public Field getCurField() {
+        return idxField;
+    }
+
+    public void resetFieldIdx() {
+        idxField = firstField;
+    }
+
+    public Field getFirstField() {
+        if (firstField == null) {
+            firstField = fields.entrySet().iterator().next().getValue();
+        }
+        return firstField;
+    }
+
     @Override
     public String toString() {
-        return name + ": " + desc + "\n";
+        StringBuilder builder = new StringBuilder();
+        builder.append(name).append(": ").append(desc).append("\n");
+        for (Field field : fields.values()) {
+            builder.append(field.toString());
+        }
+        return builder.toString();
     }
+
 }

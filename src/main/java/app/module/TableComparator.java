@@ -2,6 +2,9 @@ package app.module;
 
 import com.google.common.base.Strings;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -17,6 +20,7 @@ import app.module.common.Table;
  * 新增,修改表字段;添加新表
  */
 public class TableComparator {
+    private static final Logger logger = LoggerFactory.getLogger(TableComparator.class);
 
     /**
      * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新
@@ -67,10 +71,10 @@ public class TableComparator {
 
     private static String buildTableSql(Table table) {
         StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS `" + table.name + "`(\n");
+        //第1个字段是固定的主键id,bigint
+        builder.append("`id` bigint unsigned NOT NULL AUTO_INCREMENT,\n");
         String _default = "DEFAULT NULL";
         for (Field field : table.fields.values()) {
-            //第1个字段是固定的主键id,bigint
-            builder.append("`id` bigint unsigned NOT NULL AUTO_INCREMENT,\n");
             //拼类型和长度
             StringBuilder typeConcat = new StringBuilder(field.type);
             if ("varchar".equals(field.type)) {
@@ -78,8 +82,10 @@ public class TableComparator {
             }
             builder.append('`').append(field.name).append("` ").append(typeConcat).append(" ").append(_default).append(",\n");
         }
+        //最后字段是固定主键dt,date
+        builder.append("`dt` date NOT NULL,\n");
         //拼主键,引擎,编码
-        builder.append("PRIMARY KEY (`id`) USING BTREE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3");
+        builder.append("PRIMARY KEY (`id`,`dt`) USING BTREE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3");
         return builder.toString();
     }
 

@@ -2,6 +2,8 @@ package app.module;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import app.module.common.Table;
  * tlog.xml 日志解析器
  */
 public class XMLParser {
+    private static final Logger logger = LoggerFactory.getLogger(XMLParser.class);
 
     private final Document document;
 

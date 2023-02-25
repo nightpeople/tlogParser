@@ -1,13 +1,13 @@
 package app.module;
 
-import com.alibaba.druid.pool.DruidDataSourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
-import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -18,8 +18,8 @@ import app.module.common.Table;
  * 加载mysql库所有表信息
  */
 public class DBLoader {
+    private static final Logger logger = LoggerFactory.getLogger(DBLoader.class);
 
-    public final Properties properties;
     private final DataSource dataSource;
 
     /**
@@ -28,9 +28,8 @@ public class DBLoader {
      */
     public LinkedHashMap<String, Table> tables = new LinkedHashMap<>();
 
-    public DBLoader(Properties properties) throws Exception {
-        this.properties = properties;
-        dataSource = DruidDataSourceFactory.createDataSource(properties);
+    public DBLoader(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void load() throws SQLException {

@@ -110,7 +110,7 @@ public class PartitionTool {
 
     private boolean checkAddPartition(String tableName, RangeType type, StringBuilder createBuilder, StringBuilder lastPartitionBuilder) {
         //策略: 正则匹配出,除max_border(最大右边界)的所有分区名称,最后一个分区名称为最后的分区日期,交由RangeType判断本次是否要新增分区
-        Pattern pattern = Pattern.compile("PARTITION (\\d+?) VALUES", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("PARTITION (\\d+?) VALUES", Pattern.CASE_INSENSITIVE); //忽略大小写
         Matcher matcher = pattern.matcher(createBuilder);
         String lastPartition = "";
         while (matcher.find()) {

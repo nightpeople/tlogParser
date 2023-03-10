@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -25,7 +28,9 @@ public class TableComparator {
     /**
      * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新
      */
-    public static void compareAndAdd(DBLoader dbLoader, XMLParser xmlParser, DataSource dataSource) throws SQLException {
+    public static void compareAndAdd(DBLoader dbLoader, XMLParser xmlParser, DataSource dataSource, FixedSqlParser fixedSqlParser)
+            throws SQLException {
+        processFixedSql(dbLoader, dataSource, fixedSqlParser);
         for (Table tlogTable : xmlParser.tables.values()) {
             //创建表
             if (!dbLoader.tables.containsKey(tlogTable.name)) {
@@ -125,4 +130,29 @@ public class TableComparator {
         }
     }
 
+    private static void processFixedSql(DBLoader dbLoader, DataSource dataSource, FixedSqlParser fixedSqlParser) throws SQLException {
+        for (Entry<String, String> entry : fixedSqlParser.tableSql.entrySet()) {
+            String tableName = entry.getKey();
+            if (!dbLoader.tables.containsKey(tableName)) {
+                //创建表
+                sqlUpdate(entry.getValue(), dataSource);
+                Pattern pt = Pattern.compile(tableName, Pattern.CASE_INSENSITIVE);
+                //遍历执行该表的所有DML语句
+                for (String query : fixedSqlParser.dml) {
+                    Matcher matcher = pt.matcher(query);
+                    if (matcher.find()) {
+                        sqlUpdate(query, dataSource);
+                    }
+                }
+            }
+        }
+    }
+
+    private static int sqlUpdate(String sql, DataSource dataSource) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                return preparedStatement.executeUpdate();
+            }
+        }
+    }
 }

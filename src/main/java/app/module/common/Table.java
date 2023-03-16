@@ -14,9 +14,15 @@ import static app.module.DBLoader.FIXED_FIELDS;
 public class Table {
 
     /**
-     * 表名不区分大小写
+     * 表名,可能不区分大小写
      */
     public String name;
+
+    /**
+     * tlog.xml中原始表名
+     * 仅用于输出fluentd配置
+     */
+    public String rawName;
 
     public String desc;
 
@@ -51,7 +57,7 @@ public class Table {
         outputBiggerMemoryCacheNode.append("  </buffer>\n");
     }
 
-    public Table(String name, String desc, boolean lowerCase) {
+    public Table(String name, String desc, boolean lowerCase, String rawName) {
         if (lowerCase) {
             this.name = name.toLowerCase();
         } else {
@@ -60,6 +66,7 @@ public class Table {
         this.desc = desc;
         intFields = new ArrayList<>();
         fields = new LinkedHashMap<>();
+        this.rawName = rawName;
     }
 
     public Field addFields(String name, Field field) {
@@ -71,7 +78,7 @@ public class Table {
     }
 
     public void inputBuild(StringBuilder builder) {
-        builder.append("<filter tlog.").append(name).append(">\n");
+        builder.append("<filter tlog.").append(rawName).append(">\n");
         builder.append("  @type parser\n");
         builder.append("  key_name content\n");
         builder.append("  <parse>\n");
@@ -93,12 +100,12 @@ public class Table {
     }
 
     public void outputBuild(StringBuilder builder) {
-        builder.append("<match tlog.").append(name).append(">\n");
+        builder.append("<match tlog.").append(rawName).append(">\n");
         builder.append("  @type mysql_bulk\n");
         builder.append("  @include config.d/outputDB.conf\n");
         builder.append("  column_names ").append(String.join(",", fields.keySet())).append("\n");
-        builder.append("  table ").append(name).append("\n");
-        if (needBiggerMemoryCacheTables.containsKey(name)) {
+        builder.append("  table ").append(rawName).append("\n");
+        if (needBiggerMemoryCacheTables.containsKey(rawName)) {
             builder.append(outputBiggerMemoryCacheNode);
         }
         builder.append("</match>\n");
@@ -146,7 +153,7 @@ public class Table {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(name).append(": ").append(desc).append("\n");
+        builder.append(rawName).append(": ").append(desc).append("\n");
         for (Field field : fields.values()) {
             builder.append(field.toString());
         }

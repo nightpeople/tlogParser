@@ -62,7 +62,7 @@ public class XMLParser {
             //表结构
             String tableName = tableElement.attributeValue("name");
             String tableDesc = tableElement.attributeValue("desc", "");
-            Table table = new Table(tableName, tableDesc, lowerCase);
+            Table table = new Table(tableName, tableDesc, lowerCase, tableName);
             for (Element fieldElement : tableElement.elements()) {
                 //TODO 这里要判断属性值是否为空,name,type,必须非空
                 String fieldName = fieldElement.attributeValue("name");

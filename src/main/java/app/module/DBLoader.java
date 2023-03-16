@@ -50,7 +50,7 @@ public class DBLoader {
     }
 
     private Table buildTable(String tableName, Connection connection) throws SQLException {
-        Table table = new Table(tableName, "", lowerCase);
+        Table table = new Table(tableName, "", lowerCase, tableName);
         try (PreparedStatement ps = connection.prepareStatement("desc " + tableName)) {
             try (ResultSet rs = ps.executeQuery()) {
                 Field pre = null;

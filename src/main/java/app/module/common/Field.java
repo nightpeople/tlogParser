@@ -6,7 +6,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Field {
+
+    private static final Pattern SIZE_PATTERN = Pattern.compile("\\((.+?)\\)");
 
     public String table;
 
@@ -52,6 +57,8 @@ public class Field {
 
     /**
      * 下个字段
+     * 目前只实现了从DBLoader构建这个字段
+     * TODO 从xmlParser构建这个字段
      */
     public Field next;
 
@@ -63,12 +70,14 @@ public class Field {
         typeParser.put("tinyint", "tinyint");
         typeParser.put("bigint", "bigint");
         typeParser.put("datetime", "datetime");
+        typeParser.put("date", "date");
 
         typeSize.put("varchar", 255);
         typeSize.put("int", 11);
         typeSize.put("tinyint", 3);
         typeSize.put("bigint", 20);
         typeSize.put("datetime", 0); //0不注明长度
+        typeSize.put("date", 0);
 
         convert2Integer.put("int", "int");
         convert2Integer.put("tinyint", "tinyint");
@@ -93,8 +102,7 @@ public class Field {
         this.name = fieldName;
         this.unsigned = typeConf.contains("unsigned");
         String rawType = typeConf;
-        Pattern pattern = Pattern.compile("\\((.+?)\\)");
-        Matcher matcher = pattern.matcher(typeConf);
+        Matcher matcher = SIZE_PATTERN.matcher(typeConf);
         if (matcher.find()) {
             this.size = Integer.parseInt(matcher.group(1));
             //去掉size内容
@@ -115,7 +123,7 @@ public class Field {
 
         Integer size = typeSize.get(type);
         if (size == null) {
-            // TODO 优化抛出异常方式
+            log.error("{}类型没有指定对应的size长度", type);
             throw new IllegalArgumentException(type + "类型没有指定对应的size长度");
         }
         this.size = size;
@@ -129,17 +137,17 @@ public class Field {
             type = typeParser.get(rawType);
         }
         if (type == null) {
-            // TODO 优化抛出异常方式
-            throw new IllegalArgumentException("tlog " + table + "表 " + name + "字段 type有未识别的类型 " + rawType);
+            log.error("tlog {}表 {}字段, type有未识别的类型: {}", table, name, rawType);
+            throw new IllegalArgumentException("tlog " + table + "表 " + name + "字段, type有未识别的类型: " + rawType);
         }
         return type;
     }
 
     @Override
     public String toString() {
-        return name + "  " + type + (size > 0 ? "(" + size + ")" : "") + " " + (unsigned ? "unsigned" : "") + "  " + (notNull ? "notNull" : "") +
+        return name + "  " + type + (size > 0 ? "(" + size + ")" : "") + " " + (unsigned ? "unsigned" : "") + "  " + (notNull ? "not Null" : "") +
                 "  " + ("PRI".equalsIgnoreCase(key) ? "primaryKey  " : "") +
                 (!Strings.isNullOrEmpty(_default) && !"NULL".equalsIgnoreCase(_default) ? "Default: " + _default + "  " : "") +
-                (autoIncrement ? "autoIncrement" : "") + "\n";
+                (autoIncrement ? "auto_increment" : "") + "\n";
     }
 }

@@ -37,13 +37,13 @@ public enum RangeType {
             }
             Date compareDate = lastPartitionDate;
             while (borderDate.compareTo(compareDate) >= 0) {
-                builder.append("partition ").append(FORMATTER_MINI.format(compareDate)).append(" values less than (to_days('")
+                builder.append("partition p").append(FORMATTER_MINI.format(compareDate)).append(" values less than (to_days('")
                         .append(FORMATTER_NORMAL.format(compareDate)).append("')),\n");
                 Instant plusInstant = compareDate.toInstant().plus(1, ChronoUnit.DAYS);
                 compareDate = Date.from(plusInstant);
             }
             //删最后一个逗号
-            builder.deleteCharAt(builder.length() - 1);
+            //            builder.deleteCharAt(builder.length() - 1);
         }
 
         @Override
@@ -55,7 +55,7 @@ public enum RangeType {
             return borderDate.isAfter(lastPartitionDate);
         }
     }, week(7), halfMonth(15), // 月末日期匹配自然月
-    month(30) {
+    month(1) {
         // 匹配自然月
         @Override
         public void buildPartition(StringBuilder builder, Date lastPartitionDate) throws ParseException {
@@ -83,12 +83,12 @@ public enum RangeType {
             }
             LocalDate compareDate = lastPartDate;
             while (!borderDate.isBefore(compareDate)) {
-                builder.append("partition ").append(PATTERN_MINI.format(compareDate)).append(" values less than (to_days('")
+                builder.append("partition p").append(PATTERN_MINI.format(compareDate)).append(" values less than (to_days('")
                         .append(PATTERN_NORMAL.format(compareDate)).append("')),\n");
                 compareDate = compareDate.with(TemporalAdjusters.firstDayOfNextMonth());
             }
             //删最后一个逗号
-            builder.deleteCharAt(builder.length() - 1);
+            //            builder.deleteCharAt(builder.length() - 1);
         }
 
         @Override
@@ -99,9 +99,9 @@ public enum RangeType {
             LocalDate borderDate = curDate.plusMonths(MONTH_ADD).with(TemporalAdjusters.firstDayOfNextMonth());
             return borderDate.isAfter(lastPartitionDate);
         }
-    }, threeMonth(90);// 匹配自然月
+    }, threeMonth(2);// 匹配自然月
 
-    //分区的天数(步长)
+    //分区的步长,可以是月数,也可以是天数,根据不同的类型自己定义
     public final int length;
 
     public static final SimpleDateFormat FORMATTER_MINI = new SimpleDateFormat("yyyyMMdd");
@@ -118,10 +118,74 @@ public enum RangeType {
         this.length = length;
     }
 
+    /**
+     * 默认实现: 加length个month的分区
+     */
     public void buildPartition(StringBuilder builder, Date lastPartitionDate) throws ParseException {
+        //策略: 当天到最后一个分区(最后分区必须>当天日期)<30天,则创建下一个分区;当最后一个分区在当天左边,则必须先补齐分区一直到>当天日期(最后分区到当天右侧)
+        LocalDate curDate = LocalDate.now();
+        LocalDate lastPartDate; //最后分区
+        LocalDate nextPartDate; //下个分区
+        //当普通表转分区表时,lastPartitionDate为null
+        boolean isPartitionTable = lastPartitionDate != null;
+        if (lastPartitionDate == null) {
+            //是普通表,用curDate算前后分区
+            nextPartDate = curDate.plusMonths(length).with(TemporalAdjusters.firstDayOfNextMonth());
+            //算出虚拟的上一个分区(最后分区)
+            //    lastPartDate  -->  |curDate|  -->  nextPartDate
+            lastPartDate = nextPartDate.plusMonths((length + 1) * -1);
+        } else {
+            lastPartDate = lastPartitionDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        }
+        //当最后一个分区在当天左边,则必须先补齐分区一直到>当天日期(最后分区到当天右侧)
+        while (!lastPartDate.isAfter(curDate)) {
+            lastPartDate = lastPartDate.plusMonths(length).with(TemporalAdjusters.firstDayOfNextMonth());
+            builder.append("partition p").append(PATTERN_MINI.format(lastPartDate)).append(" values less than (to_days('")
+                    .append(PATTERN_NORMAL.format(lastPartDate)).append("')),\n");
+        }
+
+        //当天到最后一个分区间隔<30天,就创建下一个分区
+        LocalDate targetDate = lastPartDate;
+        while (targetDate.toEpochDay() - curDate.toEpochDay() < 30) {
+            targetDate = targetDate.plusMonths(length).with(TemporalAdjusters.firstDayOfNextMonth());
+            builder.append("partition p").append(PATTERN_MINI.format(targetDate)).append(" values less than (to_days('")
+                    .append(PATTERN_NORMAL.format(targetDate)).append("')),\n");
+        }
     }
 
+    /**
+     * 默认实现: 判断是否加length个month的分区
+     */
     public boolean needAddPartition(LocalDate lastPartitionDate) {
+        //策略: 当天到最后一个分区(最后分区必须>当天日期)<30天,则创建下一个分区;当最后一个分区在当天左边,则必须先补齐分区一直到>当天日期(最后分区到当天右侧)
+        LocalDate curDate = LocalDate.now();
+        if (lastPartitionDate == null) {
+            //普通表转分区表
+            return true;
+        }
+        //处理分区表,有lastPartitionDate
+        //当最后一个分区在当天左边,则必须先补齐分区一直到>当天日期(最后分区到当天右侧)
+        if (!lastPartitionDate.isAfter(curDate)) {
+            return true;
+        }
+        //当天到最后一个分区间隔<30天,就创建下一个分区
+        return lastPartitionDate.toEpochDay() - curDate.toEpochDay() < 30;
+    }
+
+    //TODO ---- 后续暂未实现
+
+    /**
+     * 专属加多天的分区的实现,例如threeDays,sevenDays等等,天数用步长length
+     * 套在buildPartition()方法内使用
+     */
+    public void buildDaysPartition(StringBuilder builder, Date lastPartitionDate) throws ParseException {
+    }
+
+    /**
+     * 专属多天分区用
+     * 套在needAddPartition()方法内使用
+     */
+    public boolean needAddDaysPartition(LocalDate lastPartitionDate) {
         return false;
     }
 }

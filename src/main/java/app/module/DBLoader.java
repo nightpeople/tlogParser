@@ -19,17 +19,19 @@ import app.module.common.Table;
  */
 public class DBLoader {
     private static final Logger logger = LoggerFactory.getLogger(DBLoader.class);
+    public static final String[] FIXED_FIELDS = new String[]{"id", "dt"};
 
     private final DataSource dataSource;
-
+    public final boolean lowerCase;
     /**
      * 加载的数据库表信息
      * 表名 - Table结构
      */
     public LinkedHashMap<String, Table> tables = new LinkedHashMap<>();
 
-    public DBLoader(DataSource dataSource) {
+    public DBLoader(DataSource dataSource, boolean lowerCase) {
         this.dataSource = dataSource;
+        this.lowerCase = lowerCase;
     }
 
     public void load() throws SQLException {
@@ -48,7 +50,7 @@ public class DBLoader {
     }
 
     private Table buildTable(String tableName, Connection connection) throws SQLException {
-        Table table = new Table(tableName, "");
+        Table table = new Table(tableName, "", lowerCase);
         try (PreparedStatement ps = connection.prepareStatement("desc " + tableName)) {
             try (ResultSet rs = ps.executeQuery()) {
                 Field pre = null;
@@ -74,7 +76,7 @@ public class DBLoader {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        int size = tables.values().size();
+        int size = tables.size();
         int count = 0;
         for (Table table : tables.values()) {
             builder.append(table.toString());

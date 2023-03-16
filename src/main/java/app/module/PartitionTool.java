@@ -29,22 +29,25 @@ public class PartitionTool {
 
     private final Properties partitionProp;
     private final DataSource dataSource;
+    public final boolean lowerCase;
 
-    public PartitionTool(Properties partitionProp, DataSource dataSource) {
+    public PartitionTool(Properties partitionProp, DataSource dataSource, boolean lowerCase) {
         this.partitionProp = partitionProp;
         this.dataSource = dataSource;
+        this.lowerCase = lowerCase;
     }
 
     public void updatePartition() throws SQLException, ParseException {
+        logger.info("开始分区检查");
         //遍历每行表配置
         for (Entry<Object, Object> row : partitionProp.entrySet()) {
-            String tableName = (String) row.getKey();
+            String tableName = lowerCase ? ((String) row.getKey()).toLowerCase() : (String) row.getKey();
             String rawType = (String) row.getValue();
             if (Strings.isNullOrEmpty(rawType)) {
                 //默认rangeType为month
                 rawType = "month";
             }
-            RangeType type = RangeType.valueOf(rawType.toLowerCase());
+            RangeType type = RangeType.valueOf(rawType);
             StringBuilder createBuilder = new StringBuilder();
             if (isPartitionTable(tableName, createBuilder)) {
                 checkAndAddPartition(tableName, type, createBuilder);
@@ -78,9 +81,11 @@ public class PartitionTool {
      * 普通表转分区表
      */
     private void alter2PartitionTable(String tableName, RangeType type) throws ParseException, SQLException {
+        logger.info("{} 表转换为分区表, 分区间隔: {}", tableName, type.name());
         StringBuilder builder = new StringBuilder("alter table " + tableName + " partition by range (to_days(dt))\n(\n");
         type.buildPartition(builder, null);
-        builder.append("\n)");
+        //最后加上max_border分区,形成闭合的分区构成
+        builder.append("partition max_border values less than MAXVALUE\n)");
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(builder.toString())) {
                 int i = ps.executeUpdate();
@@ -97,6 +102,7 @@ public class PartitionTool {
         if (!checkAddPartition(tableName, type, createBuilder, lastPartitionBuilder)) {
             return;
         }
+        logger.info("{}表添加分区, 分区间隔: {}", tableName, type.name());
         //先删掉max_border分区
         String deleteSql = "alter table " + tableName + " drop partition max_border";
         executeUpdate(deleteSql);
@@ -110,7 +116,7 @@ public class PartitionTool {
 
     private boolean checkAddPartition(String tableName, RangeType type, StringBuilder createBuilder, StringBuilder lastPartitionBuilder) {
         //策略: 正则匹配出,除max_border(最大右边界)的所有分区名称,最后一个分区名称为最后的分区日期,交由RangeType判断本次是否要新增分区
-        Pattern pattern = Pattern.compile("PARTITION (\\d+?) VALUES", Pattern.CASE_INSENSITIVE); //忽略大小写
+        Pattern pattern = Pattern.compile("PARTITION p(\\d+?) VALUES", Pattern.CASE_INSENSITIVE); //忽略大小写
         Matcher matcher = pattern.matcher(createBuilder);
         String lastPartition = "";
         while (matcher.find()) {

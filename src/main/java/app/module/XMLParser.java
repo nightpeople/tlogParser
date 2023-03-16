@@ -20,6 +20,8 @@ public class XMLParser {
 
     private final Document document;
 
+    public final boolean lowerCase;
+
     private final StringBuilder inputParserConf;
 
     private final StringBuilder outputConf;
@@ -45,8 +47,8 @@ public class XMLParser {
         outputSource.append("\n");
     }
 
-    public XMLParser(Document document) {
-
+    public XMLParser(Document document, boolean lowerCase) {
+        this.lowerCase = lowerCase;
         this.document = document;
         inputParserConf = new StringBuilder(1024 * 16);
         inputParserConf.append("#filter csv parser plugin parse tlog to k:v json by specified tag\n");
@@ -60,7 +62,7 @@ public class XMLParser {
             //表结构
             String tableName = tableElement.attributeValue("name");
             String tableDesc = tableElement.attributeValue("desc", "");
-            Table table = new Table(tableName, tableDesc);
+            Table table = new Table(tableName, tableDesc, lowerCase);
             for (Element fieldElement : tableElement.elements()) {
                 //TODO 这里要判断属性值是否为空,name,type,必须非空
                 String fieldName = fieldElement.attributeValue("name");

@@ -20,17 +20,19 @@ import app.module.common.Table;
 
 /**
  * tlog日志表对比工具
- * 新增,修改表字段;添加新表
+ * 新增,修改,删除表字段;添加新表
  */
 public class TableComparator {
     private static final Logger logger = LoggerFactory.getLogger(TableComparator.class);
 
     /**
-     * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新
+     * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新,剔除字段就删掉
      */
     public static void compareAndAdd(DBLoader dbLoader, XMLParser xmlParser, DataSource dataSource, FixedSqlParser fixedSqlParser)
             throws SQLException {
         processFixedSql(dbLoader, dataSource, fixedSqlParser);
+
+        logger.info("开始用tlog表 对比 数据库表");
         for (Table tlogTable : xmlParser.tables.values()) {
             //创建表
             if (!dbLoader.tables.containsKey(tlogTable.name)) {
@@ -39,33 +41,47 @@ public class TableComparator {
             }
             //已有表则对比字段
             Table dbTable = dbLoader.tables.get(tlogTable.name);
+            dbTable.resetFieldIdx();
             //以新表tlogTable为主视角, dbTable为对比组
             Field tlogPre = null;
             Field compareField = dbTable.getFirstField();
             for (Field tlogField : tlogTable.fields.values()) {
+                //先单独过滤删除字段逻辑
+                while (compareField != null && !Objects.equals(tlogField.name, compareField.name) &&
+                        !tlogTable.fields.containsKey(compareField.name)) {
+                    deleteField(compareField, dataSource, dbTable.name);
+                    compareField = dbTable.nextField();
+                }
+
                 if (compareField == null) {
                     //在表末尾添加字段
-                    if (dbTable.fields.containsKey(tlogField.name)) {
+                    if (!dbTable.fields.containsKey(tlogField.name)) {
                         //新增字段
                         addField(tlogField, dataSource, tlogTable.name, (tlogPre != null) ? tlogPre.name : null);
                     }
                 } else if (Objects.equals(tlogField.name, compareField.name) && !Objects.equals(tlogField.type, compareField.type)) {
                     //更新字段类型
-                    alterField(tlogField, dataSource, tlogTable.name);
+                    alterField(tlogField, dataSource, tlogTable.name, compareField.type);
                     compareField = dbTable.nextField();
                 } else if (!Objects.equals(tlogField.name, compareField.name)) {
                     //新增字段
                     addField(tlogField, dataSource, tlogTable.name, (tlogPre != null) ? tlogPre.name : null);
                 } else {
+                    //指向下一个
                     compareField = dbTable.nextField();
                 }
                 tlogPre = tlogField;
             }
-
+            //对比完后,对比表仍有字段,则是队尾需要删除的字段
+            while (compareField != null) {
+                deleteField(compareField, dataSource, dbTable.name);
+                compareField = dbTable.nextField();
+            }
         }
     }
 
     public static void createTable(Table table, DataSource dataSource) throws SQLException {
+        logger.info("创建tlog.xml中表: {}", table.name);
         String sql = buildTableSql(table);
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -75,7 +91,7 @@ public class TableComparator {
     }
 
     private static String buildTableSql(Table table) {
-        StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS `" + table.name + "`(\n");
+        StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS `" + table.name + "` (\n");
         //第1个字段是固定的主键id,bigint
         builder.append("`id` bigint unsigned NOT NULL AUTO_INCREMENT,\n");
         String _default = "DEFAULT NULL";
@@ -95,10 +111,11 @@ public class TableComparator {
     }
 
     private static void addField(Field field, DataSource dataSource, String tableName, String afterWho) throws SQLException {
+        logger.info("{}表, 新增字段: {}", tableName, field.name);
         StringBuilder builder = new StringBuilder("ALTER TABLE " + tableName + " ADD " + field.name);
         StringBuilder typeConcat = new StringBuilder(field.type);
         if ("varchar".equals(field.type)) {
-            typeConcat.append('(').append(field.size).append(')');
+            typeConcat.append('(').append(field.size).append(") CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci");
         }
         builder.append(" ").append(typeConcat);
         if (!Strings.isNullOrEmpty(afterWho)) {
@@ -115,7 +132,8 @@ public class TableComparator {
         }
     }
 
-    private static void alterField(Field field, DataSource dataSource, String tableName) throws SQLException {
+    private static void alterField(Field field, DataSource dataSource, String tableName, String oldType) throws SQLException {
+        logger.info("{}表, {}字段类型变更: {} --> {}", tableName, field.name, oldType, field.type);
         StringBuilder builder = new StringBuilder("ALTER TABLE " + tableName + " MODIFY " + field.name);
         StringBuilder typeConcat = new StringBuilder(field.type);
         if ("varchar".equals(field.type)) {
@@ -130,17 +148,25 @@ public class TableComparator {
         }
     }
 
+    private static void deleteField(Field field, DataSource dataSource, String tableName) throws SQLException {
+        logger.info("{}表, 删除字段: {}", tableName, field.name);
+        sqlUpdate("ALTER TABLE " + tableName + " DROP " + field.name, dataSource);
+    }
+
     private static void processFixedSql(DBLoader dbLoader, DataSource dataSource, FixedSqlParser fixedSqlParser) throws SQLException {
+        logger.info("开始检查固定sql模块");
         for (Entry<String, String> entry : fixedSqlParser.tableSql.entrySet()) {
             String tableName = entry.getKey();
             if (!dbLoader.tables.containsKey(tableName)) {
                 //创建表
+                logger.info("创建fixed.sql内的表: {}", tableName);
                 sqlUpdate(entry.getValue(), dataSource);
                 Pattern pt = Pattern.compile(tableName, Pattern.CASE_INSENSITIVE);
                 //遍历执行该表的所有DML语句
                 for (String query : fixedSqlParser.dml) {
                     Matcher matcher = pt.matcher(query);
                     if (matcher.find()) {
+                        logger.info("执行fixed.sql中DML语句: {}", query);
                         sqlUpdate(query, dataSource);
                     }
                 }

@@ -2,17 +2,28 @@ package app.module.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+
+import static app.module.DBLoader.FIXED_FIELDS;
 
 /**
  * 表信息
  */
 public class Table {
 
+    /**
+     * 表名不区分大小写
+     */
     public String name;
 
     public String desc;
 
+    /**
+     * 用于fluentd数据库output配置
+     * int类型的字段
+     */
     public ArrayList<String> intFields;
 
     public LinkedHashMap<String, Field> fields;
@@ -40,17 +51,18 @@ public class Table {
         outputBiggerMemoryCacheNode.append("  </buffer>\n");
     }
 
-    public Table(String name, String desc) {
-        this.name = name;
+    public Table(String name, String desc, boolean lowerCase) {
+        if (lowerCase) {
+            this.name = name.toLowerCase();
+        } else {
+            this.name = name;
+        }
         this.desc = desc;
         intFields = new ArrayList<>();
         fields = new LinkedHashMap<>();
     }
 
     public Field addFields(String name, Field field) {
-        if (fields.size() == 0) {
-            firstField = field;
-        }
         return fields.put(name, field);
     }
 
@@ -96,9 +108,17 @@ public class Table {
 
     /**
      * 指到下个字段
+     * 跳过id,dt字段
      */
     public Field nextField() {
-        return idxField = idxField.next;
+        if (idxField == null) {
+            return null;
+        }
+        idxField = idxField.next;
+        while (idxField != null && Utils.contains(FIXED_FIELDS, idxField.name)) {
+            idxField = idxField.next;
+        }
+        return idxField;
     }
 
     public Field getCurField() {
@@ -106,12 +126,19 @@ public class Table {
     }
 
     public void resetFieldIdx() {
-        idxField = firstField;
+        idxField = getFirstField();
     }
 
+    /**
+     * 获取第一个非id字段
+     */
     public Field getFirstField() {
         if (firstField == null) {
-            firstField = fields.entrySet().iterator().next().getValue();
+            Iterator<Entry<String, Field>> iterator = fields.entrySet().iterator();
+            firstField = iterator.next().getValue();
+            if ("id".equals(firstField.name)) {
+                firstField = iterator.next().getValue();
+            }
         }
         return firstField;
     }

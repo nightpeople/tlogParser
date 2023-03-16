@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
@@ -18,11 +19,14 @@ import javax.sql.DataSource;
 import app.module.DBLoader;
 import app.module.FixedSqlParser;
 import app.module.PartitionTool;
+import app.module.TableComparator;
 import app.module.XMLParser;
+import app.module.common.Utils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Main {
     public static void main(String[] args) throws Exception {
-        // TODO args参数, tlog路径等
         // 取jar包同级tlog.xml文件
         String jarPath = new File("").getAbsolutePath();
         String tlogPath;
@@ -83,26 +87,40 @@ public class Main {
             scanner = new Scanner(fixedSqlFile);
         }
 
-        //        System.out.println(properties.getProperty("db_url"));
-        //        System.out.println(properties.getProperty("db_user"));
-        //        System.out.println(properties.getProperty("db_passwd"));
-        //        System.exit(0);
-
-        //slg_data库
+        //slg_data库配置
         DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
 
+        boolean lowerCase = isLowerCaseTableNames(dataSource);
+
         FixedSqlParser fixedSqlParser = new FixedSqlParser(scanner);
-        System.exit(0);
 
-        PartitionTool partitionTool = new PartitionTool(partitionProp, dataSource);
-        partitionTool.updatePartition();
-
-        DBLoader dbLoader = new DBLoader(dataSource);
+        //加载mysql数据库表
+        DBLoader dbLoader = new DBLoader(dataSource, lowerCase);
         dbLoader.load();
-        //        System.out.println(dbLoader);
-        XMLParser xmlParser = new XMLParser(document);
-        xmlParser.parse();
+        //System.out.println(dbLoader);
 
+        //解析tlog
+        XMLParser xmlParser = new XMLParser(document, lowerCase);
+        xmlParser.parse();
+        //生成fluentd配置
         xmlParser.output2File();
+
+        //tlog新增内容对比,并添加
+        TableComparator.compareAndAdd(dbLoader, xmlParser, dataSource, fixedSqlParser);
+
+        //新增分区
+        PartitionTool partitionTool = new PartitionTool(partitionProp, dataSource, lowerCase);
+        partitionTool.updatePartition();
+    }
+
+    /**
+     * mysql lower_case_table_names 参数:
+     * 0-区分大小写
+     * 1-不区分
+     * 2-不区分
+     */
+    public static boolean isLowerCaseTableNames(DataSource dataSource) throws SQLException {
+        String value = Utils.fetchOne(dataSource, "show variables like 'lower_case_table_names'", "Value");
+        return !Objects.equals("0", value);
     }
 }

@@ -103,7 +103,7 @@ public class Table {
         builder.append("<match tlog.").append(rawName).append(">\n");
         builder.append("  @type mysql_bulk\n");
         builder.append("  @include config.d/outputDB.conf\n");
-        builder.append("  column_names ").append(String.join(",", fields.keySet())).append("\n");
+        builder.append("  column_names ").append(String.join(",", fields.keySet())).append(",dt\n"); //加上dt分区字段
         builder.append("  table ").append(rawName).append("\n");
         if (needBiggerMemoryCacheTables.containsKey(rawName)) {
             builder.append(outputBiggerMemoryCacheNode);

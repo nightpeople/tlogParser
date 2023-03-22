@@ -1,0 +1,5 @@
+#节点服务启动命令
+/opt/td-agent/bin/fluentd -c /etc/td-agent/input.conf  --log /var/log/td-agent/td-agent_input.log --daemon /var/run/td-agent/td-agent_input.pid
+
+#入库服务启动命令
+/opt/td-agent/bin/fluentd -c /etc/td-agent/output.conf  --log /var/log/td-agent/td-agent_output.log --daemon /var/run/td-agent/td-agent_output.pid

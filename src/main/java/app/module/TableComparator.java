@@ -155,9 +155,14 @@ public class TableComparator {
 
     private static void processFixedSql(DBLoader dbLoader, DataSource dataSource, FixedSqlParser fixedSqlParser) throws SQLException {
         logger.info("开始检查固定sql模块");
-        for (Entry<String, String> entry : fixedSqlParser.tableSql.entrySet()) {
+        for (Entry<String, String> entry : fixedSqlParser.dropSql.entrySet()) {
             String tableName = entry.getKey();
-            if (!dbLoader.tables.containsKey(tableName)) {
+            logger.info("删除fixed.sql指定表: {}", tableName);
+            sqlUpdate(entry.getValue(), dataSource);
+        }
+        for (Entry<String, String> entry : fixedSqlParser.createSql.entrySet()) {
+            String tableName = entry.getKey();
+            if (!dbLoader.tables.containsKey(tableName) || fixedSqlParser.dropSql.containsKey(tableName)) {
                 //创建表
                 logger.info("创建fixed.sql内的表: {}", tableName);
                 sqlUpdate(entry.getValue(), dataSource);

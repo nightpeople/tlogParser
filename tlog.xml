@@ -541,11 +541,14 @@
         <entry name="iNewMinisterId" type="uint" size="" desc="变更后的官职id"/>
         <entry name="iReason" type="uint" size="" desc="变更原因"/>
         <!--
-            0-攻陷金币城
+            0-天下大势
             1-3天未上线取消国王
             2-弹劾国王
             3-弹劾成功成为国王
             4-顺位继承了国王
+            5-襄阳战/洛阳战
+            6-国王任命
+            7-相国/秘书任命
         -->
     </struct>
 
@@ -614,11 +617,11 @@
 
         <entry name="iRankType" type="uint" size="" desc="排行榜类型"/>
         <!--
-            1-新服排行
-            2-战功排行
-            3-英雄排行
-            4-每日歼敌
-            5-年度建设
+            21-新服排行
+            22-战功排行
+            6-英雄排行
+            7-每日歼敌
+            9-年度建设
         -->
         <entry name="iScore" type="uint" size="" desc="分数"/>
         <entry name="vHeroId" type="string" size="" desc="英雄id"/>

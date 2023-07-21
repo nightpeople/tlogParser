@@ -50,6 +50,7 @@ public class Table {
 
     static {
         needBiggerMemoryCacheTables.put("PropFlow", "PropFlow");
+        needBiggerMemoryCacheTables.put("MoneyFlow", "MoneyFlow");
 
         outputBiggerMemoryCacheNode.append("  <buffer tag>\n");
         outputBiggerMemoryCacheNode.append("    @type memory\n");

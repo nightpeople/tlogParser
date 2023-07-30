@@ -1,10 +1,19 @@
 package app.module.common;
 
+import com.google.common.base.Strings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
+import javax.sql.DataSource;
 
 import static app.module.DBLoader.FIXED_FIELDS;
 
@@ -12,6 +21,10 @@ import static app.module.DBLoader.FIXED_FIELDS;
  * 表信息
  */
 public class Table {
+
+    private static final Logger logger = LoggerFactory.getLogger(Table.class);
+
+    public static final Pattern TABLE_CHARACTER_PATTERN = Pattern.compile("DEFAULT CHARSET=utf8mb3", Pattern.CASE_INSENSITIVE); //忽略大小写
 
     /**
      * 表名,可能不区分大小写
@@ -25,6 +38,12 @@ public class Table {
     public String rawName;
 
     public String desc;
+
+    /**
+     * 字符集, null说明用默认值或者从tlog.xml初始化
+     * 如果db中类型为utf8mb3,则会强制转换为utf8mb4及utf8mb4_0900_ai_ci
+     */
+    public String character;
 
     /**
      * 用于fluentd数据库output配置
@@ -68,6 +87,10 @@ public class Table {
         intFields = new ArrayList<>();
         fields = new LinkedHashMap<>();
         this.rawName = rawName;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
     }
 
     public Field addFields(String name, Field field) {
@@ -149,6 +172,18 @@ public class Table {
             }
         }
         return firstField;
+    }
+
+    public void compareAndAlter(DataSource dataSource) throws SQLException {
+        //若表的字符编码是utf8mb3则改为utf8mb4/排序utf8mb4_0900_ai_ci
+        if (!Strings.isNullOrEmpty(character) && "utf8mb3".equals(character)) {
+            logger.info("{}表, 默认字符集变更: utf8mb3 --> utf8mb4", name);
+            String sql = "ALTER TABLE `" + name + "` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci";
+            Utils.sqlUpdate(sql, dataSource);
+        }
+
+        //其他可能要修复的...
+
     }
 
     @Override

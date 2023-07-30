@@ -26,7 +26,7 @@ public class TableComparator {
     private static final Logger logger = LoggerFactory.getLogger(TableComparator.class);
 
     /**
-     * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新,剔除字段就删掉
+     * 对比,有新表就创建,有新字段就添加,字段类型有修改就更新,剔除字段就删掉,还用utf8mb3改为utf8mb4/排序utf8mb4_0900_ai_ci
      */
     public static void compareAndAdd(DBLoader dbLoader, XMLParser xmlParser, DataSource dataSource, FixedSqlParser fixedSqlParser)
             throws SQLException {
@@ -63,10 +63,11 @@ public class TableComparator {
                     //更新字段类型
                     alterField(tlogField, dataSource, tlogTable.name, compareField.type);
                     compareField = dbTable.nextField();
-                } else if (!Objects.equals(tlogField.name, compareField.name)) {
+                } else if (!Objects.equals(tlogField.name, compareField.name) && !dbTable.fields.containsKey(tlogField.name)) {
                     //新增字段
                     addField(tlogField, dataSource, tlogTable.name, (tlogPre != null) ? tlogPre.name : null);
                 } else {
+                    compareField.compareAndAlter(dataSource);
                     //指向下一个
                     compareField = dbTable.nextField();
                 }
@@ -77,6 +78,7 @@ public class TableComparator {
                 deleteField(compareField, dataSource, dbTable.name);
                 compareField = dbTable.nextField();
             }
+            dbTable.compareAndAlter(dataSource);
         }
     }
 
@@ -99,14 +101,14 @@ public class TableComparator {
             //拼类型和长度
             StringBuilder typeConcat = new StringBuilder(field.type);
             if ("varchar".equals(field.type)) {
-                typeConcat.append('(').append(field.size).append(") CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci");
+                typeConcat.append('(').append(field.size).append(") CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci");
             }
             builder.append('`').append(field.name).append("` ").append(typeConcat).append(" ").append(_default).append(",\n");
         }
         //最后字段是固定主键dt,date
         builder.append("`dt` date NOT NULL,\n");
         //拼主键,引擎,编码
-        builder.append("PRIMARY KEY (`id`,`dt`) USING BTREE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3");
+        builder.append("PRIMARY KEY (`id`,`dt`) USING BTREE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         return builder.toString();
     }
 
@@ -115,7 +117,7 @@ public class TableComparator {
         StringBuilder builder = new StringBuilder("ALTER TABLE " + tableName + " ADD " + field.name);
         StringBuilder typeConcat = new StringBuilder(field.type);
         if ("varchar".equals(field.type)) {
-            typeConcat.append('(').append(field.size).append(") CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci");
+            typeConcat.append('(').append(field.size).append(") CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci");
         }
         builder.append(" ").append(typeConcat);
         if (!Strings.isNullOrEmpty(afterWho)) {
@@ -132,14 +134,19 @@ public class TableComparator {
         }
     }
 
-    private static void alterField(Field field, DataSource dataSource, String tableName, String oldType) throws SQLException {
-        logger.info("{}表, {}字段类型变更: {} --> {}", tableName, field.name, oldType, field.type);
-        StringBuilder builder = new StringBuilder("ALTER TABLE " + tableName + " MODIFY " + field.name);
+    public static void alterField(Field field, DataSource dataSource, String tableName, String oldType) throws SQLException {
+        StringBuilder builder = new StringBuilder("ALTER TABLE `" + tableName + "` MODIFY `" + field.name + '`');
         StringBuilder typeConcat = new StringBuilder(field.type);
         if ("varchar".equals(field.type)) {
             typeConcat.append('(').append(field.size).append(')');
         }
         builder.append(" ").append(typeConcat);
+        if (!Strings.isNullOrEmpty(field.character) && "utf8mb3".equals(field.character)) {
+            logger.info("{}表, {}字段字符集变更: utf8mb3 --> utf8mb4", tableName, field.name);
+            builder.append(" CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci");
+        } else {
+            logger.info("{}表, {}字段类型变更: {} --> {}", tableName, field.name, oldType, field.type);
+        }
         String sql = builder.toString();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

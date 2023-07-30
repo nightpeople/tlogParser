@@ -2,10 +2,14 @@ package app.module.common;
 
 import com.google.common.base.Strings;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.sql.DataSource;
+
+import app.module.TableComparator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,6 +44,12 @@ public class Field {
     public boolean autoIncrement;
 
     public String desc;
+
+    /**
+     * 字符集, null说明用默认值或者从tlog.xml初始化
+     * 如果db中类型为utf8mb3,则会强制转换为utf8mb4及utf8mb4_0900_ai_ci
+     */
+    public String character;
 
     /**
      * tlog type属性 mysql字段类型对照表
@@ -118,6 +128,10 @@ public class Field {
         this.table = tableName;
     }
 
+    public void setCharacter(String character) {
+        this.character = character;
+    }
+
     public void parseType(String rawType, String name, String table) {
         this.type = parseType(rawType);
 
@@ -141,6 +155,25 @@ public class Field {
             throw new IllegalArgumentException("tlog " + table + "表 " + name + "字段, type有未识别的类型: " + rawType);
         }
         return type;
+    }
+
+    public void dealSetCharacter(String createTableStr) {
+        if ("varchar".equals(type)) {
+            Pattern compile = Pattern.compile('`' + name + "` .* CHARACTER SET utf8mb3", Pattern.CASE_INSENSITIVE); //忽略大小写
+            Matcher matcher = compile.matcher(createTableStr);
+            if (matcher.find()) {
+                setCharacter("utf8mb3");
+            }
+        }
+    }
+
+    public void compareAndAlter(DataSource dataSource) throws SQLException {
+        //表字段的字符编码是utf8mb3则改为utf8mb4/排序utf8mb4_0900_ai_ci
+        if (!Strings.isNullOrEmpty(character) && "utf8mb3".equals(character)) {
+            TableComparator.alterField(this, dataSource, table, type);
+        }
+
+        //其他可能需要修复的...
     }
 
     @Override

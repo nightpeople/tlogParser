@@ -8,11 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
 
 import javax.sql.DataSource;
 
 import app.module.common.Field;
 import app.module.common.Table;
+import app.module.common.Utils;
 
 /**
  * 加载mysql库所有表信息
@@ -51,6 +53,7 @@ public class DBLoader {
 
     private Table buildTable(String tableName, Connection connection) throws SQLException {
         Table table = new Table(tableName, "", lowerCase, tableName);
+        String createTableStr = dealSetTableCharacter(connection, table, tableName);
         try (PreparedStatement ps = connection.prepareStatement("desc `" + tableName + '`')) {
             try (ResultSet rs = ps.executeQuery()) {
                 Field pre = null;
@@ -62,6 +65,7 @@ public class DBLoader {
                     String _default = rs.getString("Default");
                     String extra = rs.getString("Extra");
                     Field field = new Field(fieldName, typeConf, notNull, key, _default, extra, tableName);
+                    field.dealSetCharacter(createTableStr);
                     if (pre != null) {
                         pre.next = field;
                     }
@@ -71,6 +75,16 @@ public class DBLoader {
             }
         }
         return table;
+    }
+
+    private String dealSetTableCharacter(Connection connection, Table table, String tableName) throws SQLException {
+        String createTableStr = Utils.fetchIndexColumn(connection, "show create table `" + tableName + '`', 2);
+        Matcher matcher = Table.TABLE_CHARACTER_PATTERN.matcher(createTableStr);
+        if (matcher.find()) {
+            table.setCharacter("utf8mb3");
+        }
+
+        return createTableStr;
     }
 
     @Override

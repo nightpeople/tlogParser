@@ -67,7 +67,9 @@ public class TableComparator {
                     //新增字段
                     addField(tlogField, dataSource, tlogTable.name, (tlogPre != null) ? tlogPre.name : null);
                 } else {
+                    //db字段自身检查并修改
                     compareField.compareAndAlter(dataSource);
+
                     //指向下一个
                     compareField = dbTable.nextField();
                 }
@@ -78,6 +80,8 @@ public class TableComparator {
                 deleteField(compareField, dataSource, dbTable.name);
                 compareField = dbTable.nextField();
             }
+
+            //db表自身检查并修改
             dbTable.compareAndAlter(dataSource);
         }
     }

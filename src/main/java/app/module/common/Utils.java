@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import javax.sql.DataSource;
 
@@ -16,6 +17,16 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static String equalsIgnoreCaseAndGet(String val, Iterator<String> iterator) {
+        while (iterator.hasNext()) {
+            String compare = iterator.next();
+            if (val.equalsIgnoreCase(compare)) {
+                return compare;
+            }
+        }
+        return "";
     }
 
     /**

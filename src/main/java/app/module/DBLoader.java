@@ -79,6 +79,7 @@ public class DBLoader {
 
     private String dealSetTableCharacter(Connection connection, Table table, String tableName) throws SQLException {
         String createTableStr = Utils.fetchIndexColumn(connection, "show create table `" + tableName + '`', 2);
+        table.setCreateTableStr(createTableStr);
         Matcher matcher = Table.TABLE_CHARACTER_PATTERN.matcher(createTableStr);
         if (matcher.find()) {
             table.setCharacter("utf8mb3");

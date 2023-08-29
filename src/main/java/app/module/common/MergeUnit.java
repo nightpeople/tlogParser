@@ -11,12 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MergeUnit {
 
+    public final int iWorldId;
+
     /**
      * 012 魏蜀吴
      */
     public final int country;
-
-    public final int iWorldId;
 
     /**
      * 高战玩家
@@ -43,8 +43,12 @@ public class MergeUnit {
      */
     public int score;
 
-    public MergeUnit(int country, int iWorldId) {
+    public MergeUnit(int iWorldId, int country) {
         this.country = country;
         this.iWorldId = iWorldId;
+    }
+
+    public void addMiddlePlayer(Player player) {
+        middlePlayers.add(player);
     }
 }

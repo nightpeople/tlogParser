@@ -18,9 +18,30 @@ public class MergeUnit {
 
     public final int iWorldId;
 
-    private final ArrayList<MergePlayer> topPlayers = new ArrayList<>();
+    /**
+     * 高战玩家
+     */
+    private final ArrayList<Player> topPlayers = new ArrayList<>();
 
-    private final ArrayList<MergePlayer> middlePlayers = new ArrayList<>();
+    /**
+     * 活跃中坚玩家
+     */
+    private final ArrayList<Player> middlePlayers = new ArrayList<>();
+
+    /**
+     * 当前战力
+     */
+    public int curPower;
+
+    /**
+     * 发展潜力
+     */
+    public int potential;
+
+    /**
+     * 综合评分
+     */
+    public int score;
 
     public MergeUnit(int country, int iWorldId) {
         this.country = country;

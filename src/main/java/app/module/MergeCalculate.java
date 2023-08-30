@@ -18,6 +18,12 @@ public class MergeCalculate {
     private final boolean lowerCase;
 
     private static final String loadSql = "select id, mergeRange, topActiveDay, middleActiveDay from mergecalculate where state = 0 order by id asc";
+    public static final int[] RIGHT1 = {200, 180, 160, 140, 120, 100, 80, 60, 40, 20};
+    public static final int RIGHT2 = 60;
+    public static final int RIGHT3 = 40;
+    public static final int RIGHT4 = 60;
+    public static final int RIGHT5 = 45;
+    public static final int RIGHT6 = 30;
 
     public MergeCalculate(DataSource dataSource, boolean lowerCase) {
         this.dataSource = dataSource;

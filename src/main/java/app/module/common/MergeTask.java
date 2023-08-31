@@ -5,18 +5,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.sql.DataSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import static app.module.common.RangeType.PATTERN_NORMAL;
 
+@Slf4j
 public class MergeTask {
 
     private final DataSource dataSource;
 
     public HashMap<String, MergeUnit> unitMap;
+    public ArrayList<MergeUnit> unitList = new ArrayList<>();
 
     private final int id;
     private final String mergeRange;
@@ -53,6 +59,18 @@ public class MergeTask {
 
     public double avgMergeCountryScore;
 
+    /**
+     * 每次组合的结果
+     * [[], [], []]
+     * 存放unitMap的key
+     */
+    private List<List<String>> result = new ArrayList<>(3);
+
+    /**
+     * 结果排名,存前20名
+     */
+    public ArrayList<MergeResult> rank = new ArrayList<>();
+
     public MergeTask(DataSource dataSource, int id, String mergeRange, int topActiveDay, int middleActiveDay) {
         this.dataSource = dataSource;
         unitMap = new HashMap<>();
@@ -60,6 +78,9 @@ public class MergeTask {
         this.mergeRange = mergeRange;
         this.topActiveDay = topActiveDay;
         this.middleActiveDay = middleActiveDay;
+        for (int i = 0; i < 3; i++) {
+            result.add(new ArrayList<>());
+        }
     }
 
     public void loadUnits() throws SQLException {
@@ -134,6 +155,7 @@ public class MergeTask {
                         if (mergeUnit == null) {
                             mergeUnit = new MergeUnit(iWorldId, iCountry);
                             unitMap.put(iWorldId + "-" + iCountry, mergeUnit);
+                            unitList.add(mergeUnit);
                         }
                         mergeUnit.addMiddlePlayer(player);
                         totalFightPower += player.fightPower;
@@ -166,5 +188,76 @@ public class MergeTask {
             totalScore += mergeUnit.calcScore(this);
         }
         avgMergeCountryScore = totalScore / 3;
+    }
+
+    /**
+     * 穷举所有排列组合, 并计算方差
+     */
+    private void combination() {
+        deal(0);
+    }
+
+    /**
+     * 递归
+     */
+    private void deal(int idx) {
+        if (idx >= unitList.size()) {
+            //结算,计算出本次的排序组合
+            MergeResult mergeResult = settle();
+            log.info(mergeResult.toString());
+            //保存最优解
+            addRank(mergeResult);
+
+            return;
+        }
+        for (int i = 0; i < 3; i++) {
+            MergeUnit mergeUnit = unitList.get(idx);
+            result.get(i).add(mergeUnit.iWorldId + "-" + mergeUnit.country);
+            deal(idx + 1);
+            //记录完组合后删除刚添加的内容
+            List<String> curGroup = result.get(i);
+            curGroup.remove(curGroup.size() - 1);
+        }
+    }
+
+    private MergeResult settle() {
+        String[] copy = new String[3];
+        double[] scoreInfo = new double[3]; // 分数累计 0-2 魏蜀吴
+        for (int i = 0; i < 3; i++) {
+            //取合服后国家的所有合并单元
+            List<String> list = result.get(i);
+            StringBuilder builder = new StringBuilder();
+            for (String unitKey : list) {
+                MergeUnit mergeUnit = unitMap.get(unitKey);
+                scoreInfo[i] += mergeUnit.score;
+                builder.append(unitKey).append(',');
+            }
+            copy[i] = builder.toString();
+        }
+        double val = (scoreInfo[0] - avgMergeCountryScore) * (scoreInfo[0] - avgMergeCountryScore) +
+                (scoreInfo[1] - avgMergeCountryScore) * (scoreInfo[1] - avgMergeCountryScore) +
+                (scoreInfo[2] - avgMergeCountryScore) * (scoreInfo[2] - avgMergeCountryScore);
+        return new MergeResult(val, copy);
+    }
+
+    private void addRank(MergeResult mergeResult) {
+        if (rank.isEmpty()) {
+            rank.add(mergeResult);
+            return;
+        }
+        if (rank.get(0).value > mergeResult.value) {
+            rank.add(0, mergeResult);
+        } else {
+            for (int i = rank.size() - 1; i >= 0; i--) {
+                MergeResult other = rank.get(i);
+                if (mergeResult.value >= other.value) {
+                    rank.add(i + 1, mergeResult);
+                    break;
+                }
+            }
+        }
+        if (rank.size() > 20) {
+            rank.remove(rank.size() - 1);
+        }
     }
 }

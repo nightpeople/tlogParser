@@ -18,6 +18,7 @@ import javax.sql.DataSource;
 
 import app.module.DBLoader;
 import app.module.FixedSqlParser;
+import app.module.MergeCalculate;
 import app.module.PartitionTool;
 import app.module.TableComparator;
 import app.module.XMLParser;
@@ -91,6 +92,21 @@ public class Main {
         DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
 
         boolean lowerCase = isLowerCaseTableNames(dataSource);
+
+        if (args.length > 0) {
+            switch (args[0]) {
+                case "mergeCalculate": {
+                    MergeCalculate mergeCalculate = new MergeCalculate(dataSource, lowerCase);
+                    mergeCalculate.calc();
+                    return;
+                }
+
+                default: {
+                    System.err.println("invalid args parameter: " + args[0]);
+                    return;
+                }
+            }
+        }
 
         FixedSqlParser fixedSqlParser = new FixedSqlParser(scanner);
 

@@ -8,15 +8,15 @@ public class Player {
     /**
      * 英雄战力
      */
-    public int score;
+    public long score;
 
     /**
      * 角色战力
      */
-    public int fightPower;
+    public long fightPower;
 
     public int homeLv;
-    public int coin;
+    public long coin;
 
     /**
      * 总充值(元)
@@ -33,14 +33,14 @@ public class Player {
      */
     public int itemNum;
 
-    public Player(int worldId, long roleId, int country, int score) {
+    public Player(int worldId, long roleId, int country, long score) {
         this.worldId = worldId;
         this.roleId = roleId;
         this.country = country;
         this.score = score;
     }
 
-    public Player(int worldId, long roleId, int country, int score, int fightPower, int homeLv, int coin, int rmb, int curRmb, int itemNum) {
+    public Player(int worldId, long roleId, int country, long score, long fightPower, int homeLv, long coin, int rmb, int curRmb, int itemNum) {
         this.worldId = worldId;
         this.roleId = roleId;
         this.country = country;
@@ -48,8 +48,8 @@ public class Player {
         this.fightPower = fightPower;
         this.homeLv = homeLv;
         this.coin = coin;
-        this.rmb=rmb;
-        this.curRmb=curRmb;
-        this.itemNum=itemNum;
+        this.rmb = rmb;
+        this.curRmb = curRmb;
+        this.itemNum = itemNum;
     }
 }

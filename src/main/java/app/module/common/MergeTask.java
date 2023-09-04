@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -21,7 +20,11 @@ public class MergeTask {
 
     private final DataSource dataSource;
 
-    public HashMap<String, MergeUnit> unitMap;
+    /**
+     * worldId-country
+     */
+    public ArrayList<String> bigThreeUnit = new ArrayList<>(3);
+    public LinkedHashMap<String, MergeUnit> unitMap;
     public ArrayList<MergeUnit> unitList = new ArrayList<>();
 
     private final int id;
@@ -30,10 +33,24 @@ public class MergeTask {
     private final int topActiveDay;
     private final int middleActiveDay;
 
+    /**
+     * 高战前15名英雄
+     */
     public LinkedHashMap<String, Hero> topHeroes = new LinkedHashMap<>();
+
+    /**
+     * 高战英雄对应角色
+     */
     public LinkedHashMap<Long, Player> topPlayers = new LinkedHashMap<>();
 
+    /**
+     * 高战英雄总战力
+     */
     public long allTopHeroesPower;
+
+    /**
+     * 活跃中坚总角色数
+     */
     public int allMiddleNum;
 
     /**
@@ -61,29 +78,56 @@ public class MergeTask {
 
     /**
      * 每次组合的结果
-     * [[], [], []]
+     * <<>, <>, <>>
      * 存放unitMap的key
      */
-    private List<List<String>> result = new ArrayList<>(3);
+    private final List<List<String>> result = new ArrayList<>(3);
 
     /**
-     * 结果排名,存前20名
+     * 结果排名,存前30名
      */
     public ArrayList<MergeResult> rank = new ArrayList<>();
 
-    public MergeTask(DataSource dataSource, int id, String mergeRange, int topActiveDay, int middleActiveDay) {
+    public int[] right1 = null;
+    public int right2;
+    public int right3;
+    public int right4;
+    public int right5;
+    public int right6;
+
+    /**
+     * 输出结果
+     */
+    public StringBuilder output = new StringBuilder();
+
+    public MergeTask(DataSource dataSource, int id, String mergeRange, int topActiveDay, int middleActiveDay, int[] right1, int right2, int right3,
+            int right4, int right5, int right6) {
         this.dataSource = dataSource;
-        unitMap = new HashMap<>();
+        this.unitMap = new LinkedHashMap<>();
         this.id = id;
         this.mergeRange = mergeRange;
         this.topActiveDay = topActiveDay;
         this.middleActiveDay = middleActiveDay;
+        this.right1 = right1;
+        this.right2 = right2;
+        this.right3 = right3;
+        this.right4 = right4;
+        this.right5 = right5;
+        this.right6 = right6;
         for (int i = 0; i < 3; i++) {
             result.add(new ArrayList<>());
         }
+        // 活跃中坚角色反推每个合服单元不一定齐全, 先初始化一遍unitMap
+        for (String rowSid : mergeRange.split(",")) {
+            int sid = Integer.parseInt(rowSid.trim());
+            for (int i = 0; i < 3; i++) {
+                MergeUnit mergeUnit = new MergeUnit(sid, i, this);
+                this.unitMap.put(sid + "-" + i, mergeUnit);
+            }
+        }
     }
 
-    public void loadUnits() throws SQLException {
+    public void process() throws SQLException {
         LocalDate curDate = LocalDate.now();
         String ymd = PATTERN_NORMAL.format(curDate);
         /*
@@ -93,7 +137,7 @@ public class MergeTask {
                         ") and iRankType=6 order by iScore desc limit 15 ) a group by iWorldId, iRoleId, iCountry order by max desc";
         */
         String topSql = "select iWorldId, iRoleId, iCountry, iScore, vHeroId from ranklog where dt = ? and iWorldId in (" + mergeRange +
-                ") and iRankType=6 order by iScore desc limit 15";
+                ") and iRankType = 6 order by iScore desc limit 15";
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(topSql)) {
                 ps.setString(1, ymd);
@@ -104,15 +148,20 @@ public class MergeTask {
                         int iWorldId = rs.getInt("iWorldId");
                         long iRoleId = rs.getLong("iRoleId");
                         int iCountry = rs.getInt("iCountry");
-                        int iScore = rs.getInt("iScore");
+                        long iScore = rs.getLong("iScore");
                         String vHeroId = rs.getString("vHeroId");
                         Hero hero = new Hero(iWorldId, iRoleId, iCountry, iScore, vHeroId);
                         hero.rank = count;
-                        topHeroes.put(iRoleId + vHeroId, hero);
+                        topHeroes.put(iRoleId + "-" + vHeroId, hero);
                         allTopHeroesPower += iScore;
                         if (!topPlayers.containsKey(iRoleId)) {
                             Player player = new Player(iWorldId, iRoleId, iCountry, iScore);
                             topPlayers.put(iRoleId, player);
+                        }
+                        // 三巨头合服单元
+                        String key = iWorldId + "-" + iCountry;
+                        if (bigThreeUnit.size() < 3 && !bigThreeUnit.contains(key)) {
+                            bigThreeUnit.add(key);
                         }
                     }
                 }
@@ -120,21 +169,37 @@ public class MergeTask {
         }
         initUnits();
         loadUnitTopHero();
-
+        initGlobalParam();
+        calcUnitScore();
+        for (MergeUnit unit : unitMap.values()) {
+            unit.unitFormat();
+        }
+        combination();
+        //formatResult();
     }
 
+    private void formatResult() {
+        for (MergeResult mergeResult : rank) {
+            mergeResult.format(this);
+        }
+    }
+
+    /**
+     * 初始化每个合服单元
+     */
     private void initUnits() throws SQLException {
         LocalDate now = LocalDate.now();
-        LocalDate minusDate = now.minusDays(3);
-        //TODO sql有问题
-        String middleSql =
-                "select a.*, b.rmb, b.curRmb, c.itemNum from" + "(select * from (select iWorldId, iRoleId, iCountry, iHomeLv, iCoin, iFightPower, " +
-                        "row_number() over (partition by iRoleId order by dtEventTime desc) as iRank from rolelogin where dt >= ? and iWorldId in (" +
-                        mergeRange + ") and iHomeLv > 23) tmp where iRank = 1) a" + "left join" +
-                        "(select iRoleId, sum(iPayDelta) as rmb, sum(if(dt >= ?, iPayDelta, 0)) as curRmb from recharge group by iRoleId) b" +
-                        "on a.iRoleId=b.iRoleId" + "left join" +
-                        "(select iRoleId, sum(regexp_replace(accept, '.*item810:(\\d+).*', '$1')) as itemNum from mail where iWorldId in (" +
-                        mergeRange + ") and accept like'%item810%' group by iRoleId) c" + "on a.iRoleId=c.iRoleId";
+        LocalDate minusDate = now.minusDays(middleActiveDay);
+
+        String middleSql = "select a.*, b.rmb, b.curRmb, c.itemNum from \n" + "(select * from \n" +
+                "(select iWorldId, iRoleId, iCountry, iHomeLv, iCoin, iFightPower, \n" +
+                "row_number() over (partition by iRoleId order by dtEventTime desc) as iRank \n" + "from rolelogin where dt >= ? and iWorldId in (" +
+                mergeRange + ") and iHomeLv >= 15) tmp \n" + "where iRank = 1) a \n" + "left join \n" +
+                "(select iRoleId, sum(iPayDelta) as rmb, sum(if(dt >= ?, iPayDelta, 0)) as curRmb \n" + "from recharge where iWorldId in (" +
+                mergeRange + ") group by iRoleId) b \n" + "on a.iRoleId = b.iRoleId \n" + "left join \n" +
+                "(select iRoleId, sum(regexp_replace(accept, '.*item810:(\\\\d+).*', '$1')) as itemNum \n" + "from mail where iWorldId in (" +
+                mergeRange + ") and accept like '%item810%' group by iRoleId) c \n" + "on a.iRoleId = c.iRoleId";
+        System.out.println(middleSql);
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(middleSql)) {
                 ps.setString(1, PATTERN_NORMAL.format(minusDate));
@@ -145,17 +210,16 @@ public class MergeTask {
                         long iRoleId = rs.getLong("iRoleId");
                         int iCountry = rs.getInt("iCountry");
                         int iHomeLv = rs.getInt("iHomeLv");
-                        int iCoin = rs.getInt("iCoin");
-                        int iFightPower = rs.getInt("iFightPower");
+                        long iCoin = rs.getLong("iCoin");
+                        long iFightPower = rs.getLong("iFightPower");
                         int rmb = rs.getInt("rmb");
                         int curRmb = rs.getInt("curRmb");
                         int itemNum = rs.getInt("itemNum");
                         Player player = new Player(iWorldId, iRoleId, iCountry, 0, iFightPower, iHomeLv, iCoin, rmb, curRmb, itemNum);
                         MergeUnit mergeUnit = unitMap.get(iWorldId + "-" + iCountry);
                         if (mergeUnit == null) {
-                            mergeUnit = new MergeUnit(iWorldId, iCountry);
+                            mergeUnit = new MergeUnit(iWorldId, iCountry, this);
                             unitMap.put(iWorldId + "-" + iCountry, mergeUnit);
-                            unitList.add(mergeUnit);
                         }
                         mergeUnit.addMiddlePlayer(player);
                         totalFightPower += player.fightPower;
@@ -168,6 +232,9 @@ public class MergeTask {
         }
     }
 
+    /**
+     * 把高战英雄分配到对应和服单元内
+     */
     private void loadUnitTopHero() {
         for (Hero hero : topHeroes.values()) {
             MergeUnit mergeUnit = unitMap.get(hero.worldId + "-" + hero.country);
@@ -178,8 +245,10 @@ public class MergeTask {
     private void initGlobalParam() {
         for (MergeUnit mergeUnit : unitMap.values()) {
             allMiddleNum += mergeUnit.middlePlayers.size();
+            if (!bigThreeUnit.contains(mergeUnit.iWorldId + "-" + mergeUnit.country)) {
+                unitList.add(mergeUnit);
+            }
         }
-
     }
 
     private void calcUnitScore() {
@@ -194,7 +263,13 @@ public class MergeTask {
      * 穷举所有排列组合, 并计算方差
      */
     private void combination() {
+        //三巨头合服单元首先单独分配
+        for (int i = 0; i < 3; i++) {
+            this.result.get(i).add(bigThreeUnit.get(i));
+        }
         deal(0);
+        log.info("最优组合如下所示: ");
+        System.out.println(rank);
     }
 
     /**
@@ -232,6 +307,7 @@ public class MergeTask {
                 scoreInfo[i] += mergeUnit.score;
                 builder.append(unitKey).append(',');
             }
+            builder.deleteCharAt(builder.length() - 1);
             copy[i] = builder.toString();
         }
         double val = (scoreInfo[0] - avgMergeCountryScore) * (scoreInfo[0] - avgMergeCountryScore) +
@@ -256,8 +332,12 @@ public class MergeTask {
                 }
             }
         }
-        if (rank.size() > 20) {
+        if (rank.size() > 30) {
             rank.remove(rank.size() - 1);
         }
+    }
+
+    public void buildOutput(String add) {
+        output.append(add);
     }
 }

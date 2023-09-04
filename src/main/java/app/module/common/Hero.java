@@ -15,7 +15,7 @@ public class Hero {
      */
     public int rank;
 
-    public Hero(int worldId, long roleId, int country, int score, String heroId) {
+    public Hero(int worldId, long roleId, int country, long score, String heroId) {
         this.worldId = worldId;
         this.roleId = roleId;
         this.country = country;

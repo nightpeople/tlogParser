@@ -29,6 +29,18 @@ public class Utils {
         return "";
     }
 
+    public static int[] toIntArray(String str, String delimiter) {
+        if (str == null) {
+            return null;
+        }
+        String[] split = str.split(delimiter);
+        int[] ints = new int[split.length];
+        for (int i = 0; i < split.length; i++) {
+            ints[i] = Integer.parseInt(split[i]);
+        }
+        return ints;
+    }
+
     /**
      * 取首行中一个字段的值
      */

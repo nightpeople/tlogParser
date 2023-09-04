@@ -7,16 +7,47 @@ public class MergeResult implements Comparable<MergeResult> {
     /**
      * 计算的方差
      */
-    double value;
+    public double value;
 
     /**
      * 方案,合服后每个国家合并进来的worldId-country
      */
-    String[] plan = new String[3];
+    public String[] plan = new String[3];
 
     public MergeResult(double value, String[] plan) {
         this.value = value;
         this.plan = plan;
+    }
+
+    /**
+     * 输出合服后每个国家的数值
+     */
+    public void format(MergeTask task) {
+        System.out.println(this);
+        int activeNum;
+        long activePower;
+        long countryRecharge;
+        long virtualRecharge;
+        int topNum;
+        for (int i = 0; i < plan.length; i++) {
+            //每个合服后国家
+            activeNum = 0;
+            activePower = 0;
+            countryRecharge = 0;
+            virtualRecharge = 0;
+            topNum = 0;
+            for (String unit : plan[i].split(",")) {
+                MergeUnit mergeUnit = task.unitMap.get(unit);
+                activeNum += mergeUnit.middlePlayers.size();
+                activePower += mergeUnit.totalFightPower;
+                countryRecharge += mergeUnit.totalRealRecharge;
+                virtualRecharge += mergeUnit.totalItemNum;
+                topNum += mergeUnit.topHeroes.size();
+            }
+            System.out.println("国家" + i + "活跃人数:" + activeNum + ", 活跃战力:" + activePower + ", 总充值:" + countryRecharge + ", 虚拟充值:" +
+                    virtualRecharge + ", 高战人数:" + topNum + '\n');
+        }
+        System.out.println("------------------------------------------------\n");
     }
 
     @Override
@@ -38,7 +69,7 @@ public class MergeResult implements Comparable<MergeResult> {
             builder.append('[').append(s).append(']');
         }
 
-        return "MergeResult{" + "value=" + value + '}' + builder.toString();
+        return "MergeResult{" + "value=" + (int) value + '}' + builder + "\n";
     }
 
     public static void main(String[] args) {

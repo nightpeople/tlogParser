@@ -27,6 +27,7 @@ public class XMLParser {
     private final StringBuilder outputConf;
 
     public static final StringBuilder outputSource = new StringBuilder();
+    public static final StringBuilder logFileConf = new StringBuilder();
 
     public static final String INPUT_CONF_PATH = "inputParser.conf";
     public static final String OUTPUT_CONF_PATH = "output.conf";
@@ -45,6 +46,15 @@ public class XMLParser {
         outputSource.append("  port 7878\n");
         outputSource.append("</source>\n");
         outputSource.append("\n");
+
+        logFileConf.append("##system config\n");
+        logFileConf.append("<system>\n");
+        logFileConf.append("  #7day or 10MB condition for rotate log files\n");
+        logFileConf.append("  <log>\n");
+        logFileConf.append("    rotate_age 7\n");
+        logFileConf.append("    rotate_size 10485760\n");
+        logFileConf.append("  </log>\n");
+        logFileConf.append("</system>\n\n");
     }
 
     public XMLParser(Document document, boolean lowerCase) {
@@ -53,7 +63,7 @@ public class XMLParser {
         inputParserConf = new StringBuilder(1024 * 16);
         inputParserConf.append("#filter csv parser plugin parse tlog to k:v json by specified tag\n");
         outputConf = new StringBuilder(1024 * 16);
-        outputConf.append("##tlog data output to mysql\n");
+        outputConf.append(logFileConf).append("##tlog data output to mysql\n");
     }
 
     public void parse() {

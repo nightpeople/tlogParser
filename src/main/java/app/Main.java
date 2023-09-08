@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
@@ -96,7 +97,8 @@ public class Main {
         if (args.length > 0) {
             switch (args[0]) {
                 case "mergeCalculate": {
-                    MergeCalculate mergeCalculate = new MergeCalculate(dataSource, lowerCase);
+                    String[] params = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
+                    MergeCalculate mergeCalculate = new MergeCalculate(dataSource, lowerCase, params);
                     mergeCalculate.calc();
                     return;
                 }

@@ -18,8 +18,10 @@ public class MergeCalculate {
 
     private final boolean lowerCase;
 
+    private String[] params = new String[0];
+
     private static final String loadSql =
-            "select id, mergeRange, topActiveDay, middleActiveDay, right1, right2, right3, right4, right5, right6 from mergecalculate where state = 0 order by id asc";
+            "select id, mergeRange, topActiveDay, middleActiveDay, right1, right2, right3, right4, right5, right6 from mergecalculate where state = 0 order by id asc limit 1";
     public static final int[] RIGHT1 = {200, 180, 160, 140, 120, 100, 80, 60, 40, 20};
     public static final int RIGHT2 = 60;
     public static final int RIGHT3 = 40;
@@ -27,9 +29,10 @@ public class MergeCalculate {
     public static final int RIGHT5 = 45;
     public static final int RIGHT6 = 30;
 
-    public MergeCalculate(DataSource dataSource, boolean lowerCase) {
+    public MergeCalculate(DataSource dataSource, boolean lowerCase, String[] params) {
         this.dataSource = dataSource;
         this.lowerCase = lowerCase;
+        this.params = params;
     }
 
     public void calc() throws SQLException {
@@ -53,7 +56,7 @@ public class MergeCalculate {
                         int right6 = rs.getInt("right6");
                         MergeTask mergeTask =
                                 new MergeTask(dataSource, id, mergeRange, topActiveDay, middleActiveDay, right1, right2, right3, right4, right5,
-                                        right6);
+                                        right6, this.params);
                         log.info("合服评估任务 id:{} -> 合服范围:{}", id, mergeRange);
                         mergeTask.process();
                     }

@@ -36,6 +36,13 @@ public class MergeUnit {
      */
     public final ArrayList<Player> middlePlayers = new ArrayList<>();
 
+    public double score1;
+    public double score2;
+    public double score3;
+    public double score4;
+    public double score5;
+    public double score6;
+
     /**
      * 综合评分
      */
@@ -99,12 +106,12 @@ public class MergeUnit {
     }
 
     public double calcScore(MergeTask task) {
-        double score1 = task.allTopHeroesPower != 0 ? (double) localTopHeroPower / task.allTopHeroesPower : 0;
-        double score2 = task.allMiddleNum != 0 ? (double) middlePlayers.size() * getRight2() / task.allMiddleNum : 0;
-        double score3 = task.totalFightPower != 0 ? (double) totalFightPower * getRight3() / task.totalFightPower : 0;
-        double score4 = task.totalRechargeVal != 0 ? (double) totalRechargeVal * getRight4() / task.totalRechargeVal : 0;
-        double score5 = task.totalCurRecharge != 0 ? (double) totalCurRecharge * getRight5() / task.totalCurRecharge : 0;
-        double score6 = task.totalCoin != 0 ? (double) totalCoin * getRight6() / task.totalCoin : 0;
+        score1 = task.allTopHeroesPower != 0 ? (double) localTopHeroPower / task.allTopHeroesPower : 0;
+        score2 = task.allMiddleNum != 0 ? (double) middlePlayers.size() * getRight2() / task.allMiddleNum : 0;
+        score3 = task.totalFightPower != 0 ? (double) totalFightPower * getRight3() / task.totalFightPower : 0;
+        score4 = task.totalRechargeVal != 0 ? (double) totalRechargeVal * getRight4() / task.totalRechargeVal : 0;
+        score5 = task.totalCurRecharge != 0 ? (double) totalCurRecharge * getRight5() / task.totalCurRecharge : 0;
+        score6 = task.totalCoin != 0 ? (double) totalCoin * getRight6() / task.totalCoin : 0;
         this.score = score1 + score2 + score3 + score4 + score5 + score6;
         task.output.append(iWorldId).append('-').append(country).append(" score: ").append(String.format("%.2f", score)).append("  score1:")
                 .append(String.format("%.2f", score1)).append(", score2:").append(String.format("%.2f", score2)).append(", score3: ")

@@ -22,12 +22,17 @@ public class MergeCalculate {
 
     private static final String loadSql =
             "select id, mergeRange, topActiveDay, middleActiveDay, right1, right2, right3, right4, right5, right6 from mergecalculate where state = 0 order by id asc limit 1";
-    public static final int[] RIGHT1 = {200, 180, 160, 140, 120, 100, 80, 60, 40, 20};
-    public static final int RIGHT2 = 60;
-    public static final int RIGHT3 = 40;
-    public static final int RIGHT4 = 60;
-    public static final int RIGHT5 = 45;
+    public static final int[] RIGHT1 = {200, 180, 160, 140, 120, 100, 100, 80, 80, 80, 60, 60, 60, 60, 60};
+    public static final int RIGHT2 = 100;
+    public static final int RIGHT3 = 60;
+    public static final int RIGHT4 = 70;
+    public static final int RIGHT5 = 30;
     public static final int RIGHT6 = 30;
+
+    /**
+     * 合服单元数量差距修正
+     */
+    public static final double[] DIFF_VALUE = {1, 1.2, 1.4, 1.6, 1.8, 2};
 
     public MergeCalculate(DataSource dataSource, boolean lowerCase, String[] params) {
         this.dataSource = dataSource;

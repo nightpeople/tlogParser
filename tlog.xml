@@ -18,6 +18,7 @@
 
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
         <entry name="iFightPower" type="bigint" size="" desc="战斗力"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
     <!-- 角色登出LOG -->
     <struct name="RoleLogout" id="" desc="角色登出LOG">
@@ -40,6 +41,7 @@
 
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
         <entry name="iFightPower" type="bigint" size="" desc="战斗力"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 创建账号 -->
@@ -67,7 +69,7 @@
         <entry name="iCountry" type="uint" size="" desc="国家"/>
 
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
-
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 充值 -->
@@ -87,7 +89,7 @@
         <entry name="iNewCash" type="bigint" size="" desc="金币余量"/>
         <entry name="vSubType" type="string" size="64" desc="子类型,购买功能类型"/>
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
-
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 充值金币消费 -->
@@ -111,6 +113,7 @@
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
         <entry name="iNewCash" type="bigint" size="" desc="钻石余量"/>
         <entry name="iOperate" type="uint" size="60" desc="操作类型"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!--现金流日志 -->
@@ -130,7 +133,7 @@
         <entry name="iValueType" type="uint" size="" desc="金钱的类型"/>
         <entry name="iOperate" type="uint" size="" desc="操作类型"/>
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
-
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
     <!-- 物品流向日志 -->
     <struct name="PropFlow" id="" desc="物品流向日志">
@@ -149,6 +152,7 @@
         <entry name="iTotalCount" type="bigint" index="1" desc="动作后的道具总个数"/>
         <entry name="iIdentifier" type="uint" index="1" desc="标识 1是得到，2是失去"/>
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 在线人数 -->
@@ -177,6 +181,7 @@
         <entry name="miniGameType" type="string" size="" desc="小游戏类型 1飞机 2塔防"/>
         <entry name="level" sort="4" type="uint" size="" desc="关卡id"/>
         <entry name="spendTime" type="uint" size="" desc="花费的时间，单位取秒"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -232,6 +237,7 @@
         <entry name="tasktype" type="string" size="" desc="任务类型"/>
         <entry name="chapterId" type="uint" size="" desc="章节id"/>
         <entry name="taskId" type="uint" size="" desc="任务id"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 封地升级日志 -->
@@ -250,6 +256,7 @@
         <entry name="buildingId" type="string" size="" desc="建筑id"/>
         <entry name="levelBefore" type="bigint" size="" desc="动作前的等级"/>
         <entry name="levelAfter" type="bigint" size="" desc="动作后的等级"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -263,6 +270,7 @@
         <entry name="cityType" type="uint" size="" desc="城池类型"/>
         <entry name="countryBefore" type="uint" size="" desc="变更前的归属国"/>
         <entry name="countryAfter" type="uint" size="" desc="变更后的归属国"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -281,6 +289,7 @@
 
         <entry name="maxTimes" type="uint" size="" desc="当天可以完成的最大次数，包含购买"/>
         <entry name="times" type="uint" size="" desc="当天完成次数"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 英雄升星 -->
@@ -299,6 +308,7 @@
         <entry name="heroId" type="string" size="" desc="升级的英雄id"/>
         <entry name="cost" type="string" size="" desc="消耗"/>
         <entry name="levelAfter" type="uint" size="" desc="升星完成后的星级"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 技能升级 -->
@@ -318,11 +328,12 @@
         <entry name="skillId" type="string" size="" desc="升级的技能id"/>
         <entry name="cost" type="string" size="" desc="消耗"/>
         <entry name="levelAfter" type="uint" size="" desc="升星完成后的技能等级"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
     <!-- 宝物突破 -->
-    <struct name="equipUpgrade" id="" desc="技能升级日志">
+    <struct name="equipUpgrade" id="" desc="宝物突破">
         <entry name="iEventId" type="string" size="60" desc="操作ID"/>
         <entry name="iWorldId" type="uint" index="1" desc="游戏大区ID"/>
         <entry name="iUin" type="string" size="60" desc="用户ID"/>
@@ -338,6 +349,7 @@
         <entry name="cost" type="string" size="" desc="消耗"/>
         <entry name="levelBefore" type="uint" size="" desc="突破前的等级"/>
         <entry name="levelAfter" type="uint" size="" desc="突破后的等级"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 商店日志-->
@@ -357,6 +369,7 @@
         <entry name="orderId" type="int" size="" desc="商品id"/>
         <entry name="cost" type="string" size="" desc="花费的代币及数量"/>
         <entry name="get" type="string" size="" desc="获得的道具及数量"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -373,6 +386,7 @@
         <entry name="iHomeLv" type="uint" size="" desc="官邸等级"/>
         <entry name="iLoginWay" type="string" size="" desc="登录渠道"/>
         <entry name="officeRightId" type="string" size="" desc="爵位特权id"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -398,6 +412,7 @@
         <entry name="loseTroop" type="uint" size="" desc="记录玩家自身损失的兵力数量"/>
         <entry name="credit" type="uint" size="" desc="产生的战功"/>
         <entry name="proud" type="uint" size="" desc="己方开战前的傲气值"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- pve日志 -->
@@ -416,6 +431,7 @@
         <entry name="pveType" type="uint" size="" desc="pve类型 1异族入侵 2产业 3切磋"/>
         <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
         <entry name="loseTroop" type="uint" size="" desc="损失的兵力数量"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 攻坚特训（过关斩将）日志-->
@@ -433,6 +449,7 @@
 
         <entry name="defeatNum" type="uint" size="" desc="击败的队伍数量"/>
         <entry name="reward" type="string" size="" desc="获得的奖励"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 实战对抗（群雄逐鹿）日志-->
@@ -452,6 +469,7 @@
         <entry name="rankAfter" type="uint" size="" desc="打完后的排名"/>
         <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
         <entry name="reward" type="string" size="" desc="获得的奖励"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <!-- 特战演习（沙盘演义）日志-->
@@ -471,6 +489,7 @@
         <entry name="repeat" type="uint" size="" desc="0挑战 1扫荡"/>
         <entry name="result" type="uint" size="" desc="结果 0失败 1胜利 "/>
         <entry name="reward" type="string" size="" desc="获得的奖励"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
 
@@ -489,6 +508,7 @@
 
         <entry name="result" type="uint" size="" desc="结果 0失败 大于0代表星星数"/>
         <entry name="reward" type="string" size="" desc="获得的奖励"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="guide" id="" desc="引导日志">
@@ -523,6 +543,7 @@
         <entry name="title" type="string" size="60" desc="邮件标题"/>
         <entry name="accept" type="string" size="60" desc="领取奖励内容"/>
         <entry name="iOperate" type="uint" size="" desc="操作类型"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="CountryMinister" id="" desc="国家官职变更">
@@ -550,6 +571,7 @@
             6-国王任命
             7-相国/秘书任命
         -->
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="CountryMayor" id="" desc="太守日志">
@@ -567,6 +589,7 @@
         <entry name="vCityId" type="string" size="" desc="城池id"/>
         <entry name="iType" type="uint" size="" desc="1-任命 0-取消任命"/>
         <entry name="iMinister" type="uint" size="" desc="进行操作的官职,系统移除用-1"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="CityBuild" id="" desc="城池建设">
@@ -586,6 +609,7 @@
         <entry name="iBuildingLv" type="uint" size="" desc="建筑物等级"/>
         <entry name="iBuildingExp" type="uint" size="" desc="当前建设值"/>
         <entry name="iExpAdd" type="uint" size="" desc="提升的建设值"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="CountryTask" id="" desc="国家任务" dont_use_special_arg="DONT">
@@ -595,6 +619,7 @@
         <entry name="iCountry" type="uint" size="" desc="国家"/>
 
         <entry name="iTaskCode" type="uint" size="" desc="国家任务id"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="Milepost" id="" desc="天下大势" dont_use_special_arg="DONT">
@@ -605,6 +630,7 @@
 
         <entry name="iStage" type="uint" size="" desc="天下大势阶段"/>
         <entry name="iState" type="uint" size="" desc="0-未完成,1-完成,2-开始"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
 
     <struct name="RankLog" id="" desc="排行榜" dont_use_special_arg="DONT">
@@ -625,5 +651,7 @@
         -->
         <entry name="iScore" type="uint" size="" desc="分数"/>
         <entry name="vHeroId" type="string" size="" desc="英雄id"/>
+        <entry name="iMergeId" type="uint" size="" desc="合服大区ID"/>
     </struct>
+
 </metalib>

@@ -397,7 +397,8 @@ public class MergeTask {
 
     private void formatInput() {
         ArrayList<MergeResult> input = new ArrayList<>();
-        String str = "[2048-1,2044-2,2046-2,2047-0,2045-1][2045-0,2048-0,2046-1,2047-1][2044-0,2044-1,2045-2,2046-0,2047-2,2048-2]";
+        String str =
+                "[2059-1,2057-1,2055-1,2058-2,2056-1,2060-2][2060-1,2058-0,2055-2,2057-0,2059-0,2056-0][2057-2,2055-0,2060-0,2056-2,2059-2,2058-1]";
         for (String row : str.split("\n")) {
             String[] copy = new String[3];
             Matcher matcher = MERGE_RESULT_PATTERN.matcher(row);

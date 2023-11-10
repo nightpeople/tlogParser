@@ -72,6 +72,8 @@ public class Table {
     /**
      * 普通索引配置
      * 索引名 - [索引字段及顺序]
+     * a.table没有该索引 -> 判断索引字段是否都在table中 -> 加索引
+     * b.新建表table -> 判断索引字段是否都在table中 -> 添加索引
      */
     public static final HashMap<String, String[]> indexConf = new HashMap<>();
 
@@ -96,6 +98,7 @@ public class Table {
 
         indexConf.put("index_dt_iworldid", new String[]{"dt", "iWorldId"});
         indexConf.put("index_iworldid", new String[]{"iWorldId"});
+        indexConf.put("index_imergeid", new String[]{"iMergeId"});
 
         for (String indexName : indexConf.keySet()) {
             Pattern pattern = Pattern.compile("KEY `" + indexName + '`', Pattern.CASE_INSENSITIVE);//忽略大小写
@@ -236,7 +239,7 @@ public class Table {
 
     }
 
-    private String buildIndexField(String[] indexFields) {
+    public String buildIndexField(String[] indexFields) {
         StringBuilder builder = new StringBuilder("(");
         for (String field : indexFields) {
             //索引字段必须都在表中,否则会报错

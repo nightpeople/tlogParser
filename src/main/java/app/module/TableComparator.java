@@ -111,8 +111,21 @@ public class TableComparator {
         }
         //最后字段是固定主键dt,date
         builder.append("`dt` date NOT NULL,\n");
-        //拼主键,引擎,编码
-        builder.append("PRIMARY KEY (`id`,`dt`) USING BTREE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        //拼主键
+        builder.append("PRIMARY KEY (`id`,`dt`) USING BTREE");
+        //拼索引,可能会没有
+        for (Entry<String, String[]> entry : Table.indexConf.entrySet()) {
+            String indexName = entry.getKey();
+            String[] indexFields = entry.getValue();
+            String indexField = table.buildIndexField(indexFields);
+            //返回空字符串, 说明有索引字段在表中不存在
+            if (!Strings.isNullOrEmpty(indexField)) {
+                builder.append(",\n");
+                builder.append("KEY `").append(indexName).append("` ").append(indexField);
+            }
+        }
+        //拼引擎,编码
+        builder.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci");
         return builder.toString();
     }
 
@@ -125,7 +138,7 @@ public class TableComparator {
         }
         builder.append(" ").append(typeConcat);
         if (!Strings.isNullOrEmpty(afterWho)) {
-            builder.append(" after ").append(afterWho);
+            builder.append(" after ").append('`').append(afterWho).append('`');
         } else {
             //按理说是不会走到这里
             builder.append(" first");

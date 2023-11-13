@@ -129,6 +129,8 @@ public class Main {
         //新增分区
         PartitionTool partitionTool = new PartitionTool(partitionProp, dataSource, lowerCase);
         partitionTool.updatePartition();
+
+        log.info("tlogParser运行结束...");
     }
 
     /**
